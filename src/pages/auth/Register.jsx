@@ -109,7 +109,7 @@ export default function Register() {
             </div>
             <div style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:20, fontSize:13, color:'var(--text-secondary)' }}>
               <input type="checkbox" required style={{ marginTop:2, accentColor:'var(--pink)' }} />
-              <span>I agree to the <a href="#" style={{ color:'var(--pink)' }}>Terms of Service</a> and <a href="#" style={{ color:'var(--pink)' }}>Privacy Policy</a></span>
+              <span>I agree to the <button type="button" onClick={() => {}} style={{ color:'var(--pink)', background:'none', border:'none', cursor:'pointer' }}>Terms of Service</button> and <button type="button" onClick={() => {}} style={{ color:'var(--pink)', background:'none', border:'none', cursor:'pointer' }}>Privacy Policy</button></span>
             </div>
             <button id="register-submit" className="btn btn-primary btn-full" type="submit" disabled={loading}>
               {loading ? 'Creating Account...' : `Create ${role === 'seller' ? 'Seller' : ''} Account`}

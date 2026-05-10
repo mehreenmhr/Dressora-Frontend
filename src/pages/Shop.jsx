@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Grid, List, SlidersHorizontal, X } from 'lucide-react';
+import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products, categories } from '../data/mockData';
 import '../styles/pages.css';
@@ -19,7 +19,18 @@ export default function Shop() {
   useEffect(() => {
     let result = products.filter(p => p.isActive);
     if (search)      result = result.filter(p => p.productName.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase()));
-    if (selectedCat) result = result.filter(p => p.categoryID === selectedCat);
+    if (selectedCat) {
+      const selectedCategory = categories.find(c => c.categoryID === selectedCat);
+      if (selectedCategory && !selectedCategory.parentCategoryID) {
+        // It's a top-level category, include products from this and all child categories
+        const childCategories = categories.filter(c => c.parentCategoryID === selectedCat).map(c => c.categoryID);
+        const allCategoryIds = [selectedCat, ...childCategories];
+        result = result.filter(p => allCategoryIds.includes(p.categoryID));
+      } else {
+        // It's a subcategory or direct match
+        result = result.filter(p => p.categoryID === selectedCat);
+      }
+    }
     if (priceMin)    result = result.filter(p => p.basePrice >= Number(priceMin));
     if (priceMax)    result = result.filter(p => p.basePrice <= Number(priceMax));
     if (sortBy === 'price-asc')  result = [...result].sort((a,b) => a.basePrice - b.basePrice);

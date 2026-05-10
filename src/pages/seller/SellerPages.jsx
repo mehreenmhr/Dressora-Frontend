@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, DollarSign, Star, Plus, Edit2, Trash2, Eye, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Package, ShoppingBag, DollarSign, Star, Plus, Edit2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { products, orders, orderItems, getProductById, formatPrice, categories } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function SellerSidebar({ active }) {
-  const { logout, displayName } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   return (
     <div className="dashboard-sidebar">

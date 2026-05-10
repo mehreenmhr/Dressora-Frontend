@@ -95,7 +95,7 @@
 /* ---- AUTH ---- */
 .auth-page { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
 .auth-left {
-  background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+  background: linear-gradient(135deg, #151D3D 0%, #982598 100%);
   display: flex;
   align-items: center;
   justify-content: center;

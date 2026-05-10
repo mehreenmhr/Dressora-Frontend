@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Share2, Star, CheckCircle, Truck, RefreshCw, Shield } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, CheckCircle, Truck, RefreshCw, Shield } from 'lucide-react';
 import { getProductById, getReviewsByProduct, formatPrice, getDiscount, categories } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ui/ProductCard';

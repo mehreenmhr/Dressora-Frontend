@@ -88,7 +88,7 @@ export default function Login() {
             </div>
             <div className="form-group">
               <label className="form-label" style={{ display:'flex', justifyContent:'space-between' }}>
-                Password <a href="#" style={{ fontSize:12, color:'var(--pink)', fontWeight:500 }}>Forgot password?</a>
+                Password <button type="button" onClick={() => {}} style={{ fontSize:12, color:'var(--pink)', fontWeight:500, background:'none', border:'none', cursor:'pointer' }}>Forgot password?</button>
               </label>
               <div style={{ position:'relative' }}>
                 <input id="login-password" className="form-control" type={showPw ? 'text' : 'password'} placeholder="••••••••" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required style={{ paddingRight:44 }} />

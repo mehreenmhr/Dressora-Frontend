@@ -22,11 +22,11 @@ export default function Footer() {
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
-                <a key={i} href="#" style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.06)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', transition: 'all 0.25s' }}
+                <button key={i} style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.06)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', transition: 'all 0.25s', border: 'none', cursor: 'pointer' }}
                   onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(90deg,#f92c8b,#b02cd6)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
                   <Icon size={15} />
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -84,9 +84,9 @@ export default function Footer() {
         <div style={{ padding: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, fontSize: 13 }}>
           <p>© 2026 Dressora. All rights reserved.</p>
           <div style={{ display: 'flex', gap: 20 }}>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.5)' }}>Privacy Policy</a>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.5)' }}>Terms of Service</a>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.5)' }}>Returns</a>
+            <button onClick={() => {}} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>Privacy Policy</button>
+            <button onClick={() => {}} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>Terms of Service</button>
+            <button onClick={() => {}} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>Returns</button>
           </div>
         </div>
       </div>

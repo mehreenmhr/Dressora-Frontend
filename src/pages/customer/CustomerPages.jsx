@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Package, MapPin, LogOut, Star, Edit2, Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { getOrdersByCustomer, getAddressesByCustomer, formatPrice, orderStatuses, getOrderItems, getProductById } from '../../data/mockData';
+import { getOrdersByCustomer, getAddressesByCustomer, formatPrice, getOrderItems, getProductById } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function AccountSidebar({ active }) {
@@ -35,7 +35,7 @@ function AccountSidebar({ active }) {
 }
 
 export function Profile() {
-  const { currentUser, displayName } = useAuth();
+  const { currentUser } = useAuth();
   const [editing, setEditing] = useState(false);
   const profile = currentUser?.profile || {};
   const [form, setForm] = useState({ firstName: profile.firstName||'', lastName: profile.lastName||'', email: currentUser?.email||'', phoneNumber: currentUser?.phoneNumber||'' });

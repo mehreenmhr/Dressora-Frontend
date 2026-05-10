@@ -4,6 +4,13 @@ import ProductCard from '../components/ui/ProductCard';
 import { categories, featuredProducts, reviews, newArrivals } from '../data/mockData';
 import '../styles/home.css';
 
+// Import Modest category images
+import modestImg1 from '../assests/Modest/abdul-raheem-kannath-9yMbkhLcWnU-unsplash.jpg.jpeg';
+import modestImg2 from '../assests/Modest/abdul-raheem-kannath-atUAW7rzs28-unsplash.jpg.jpeg';
+import modestImg3 from '../assests/Modest/abdul-raheem-kannath-edN3QRJlSKo-unsplash.jpg.jpeg';
+
+const modestImages = [modestImg1, modestImg2, modestImg3];
+
 const features = [
   { icon: Truck,       title: 'Free Delivery',    sub: 'On orders over Rs. 2,000' },
   { icon: RefreshCw,   title: 'Easy Returns',      sub: '30-day return policy' },
@@ -69,12 +76,16 @@ export default function Home() {
             <p>Find exactly what you're looking for in our curated category collection</p>
           </div>
           <div className="category-grid">
-            {topCategories.map(cat => (
+            {topCategories.map((cat, index) => (
               <Link to={`/shop?category=${cat.categoryID}`} key={cat.categoryID} className="category-card">
                 <div className="category-card-img">
-                  <div className="img-placeholder" style={{ height: '100%' }}>
-                    <span>{cat.icon}</span>
-                  </div>
+                  {cat.categoryID === 1 && modestImages[index % modestImages.length] ? (
+                    <img src={modestImages[index % modestImages.length]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div className="img-placeholder" style={{ height: '100%' }}>
+                      <span>{cat.icon}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="name">{cat.categoryName}</div>
                 <div className="count">View All</div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, CreditCard, Truck, CheckCircle } from 'lucide-react';
+import { MapPin, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { addresses, formatPrice } from '../data/mockData';

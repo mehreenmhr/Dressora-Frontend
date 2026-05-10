@@ -164,7 +164,6 @@ export function AdminCategories() {
     setShowModal(false); setForm({ categoryName:'', description:'', parentCategoryID:'' });
   };
 
-  const topLevel = catList.filter(c => !c.parentCategoryID);
   const getChildren = (id) => catList.filter(c => c.parentCategoryID === id);
 
   return (

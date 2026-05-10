@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, Search, User, Heart, Menu, X, ShoppingBag, LogOut, Settings, Package, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, Search, User, Menu, X, ShoppingBag, LogOut, Package, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import '../../styles/navbar.css';
@@ -41,12 +41,9 @@ export default function Navbar() {
             <li className="nav-dropdown">
               <span className="nav-link" style={{cursor:'pointer'}}>Categories ▾</span>
               <div className="nav-dropdown-menu">
-                <Link to="/shop?category=1" className="nav-dropdown-item"><span>👗</span> Women</Link>
-                <Link to="/shop?category=2" className="nav-dropdown-item"><span>👔</span> Men</Link>
-                <Link to="/shop?category=3" className="nav-dropdown-item"><span>🧒</span> Kids</Link>
-                <Link to="/shop?category=4" className="nav-dropdown-item"><span>👜</span> Accessories</Link>
-                <Link to="/shop?category=5" className="nav-dropdown-item"><span>👠</span> Footwear</Link>
-                <Link to="/shop?category=6" className="nav-dropdown-item"><span>🏷️</span> Sale</Link>
+                <Link to="/shop?category=1" className="nav-dropdown-item"><span>👗</span> Modest</Link>
+                <Link to="/shop?category=2" className="nav-dropdown-item"><span>🥻</span> Eastern</Link>
+                <Link to="/shop?category=3" className="nav-dropdown-item"><span>👔</span> Western</Link>
               </div>
             </li>
           </ul>
@@ -116,8 +113,9 @@ export default function Navbar() {
         </form>
         <Link to="/" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Home</Link>
         <Link to="/shop" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Shop</Link>
-        <Link to="/shop?category=1" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Women</Link>
-        <Link to="/shop?category=2" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Men</Link>
+        <Link to="/shop?category=1" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Modest</Link>
+        <Link to="/shop?category=2" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Eastern</Link>
+        <Link to="/shop?category=3" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Western</Link>
         <Link to="/cart" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Cart ({itemCount})</Link>
         {currentUser ? (
           <>
