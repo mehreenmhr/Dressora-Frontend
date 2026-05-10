@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products, categories } from '../data/mockData';
@@ -96,7 +96,7 @@ export default function Shop() {
         <div className="container">
           <h1>Shop Collection</h1>
           <p>Discover our latest fashion arrivals</p>
-          <div className="breadcrumb"><a href="/">Home</a> / <span>Shop</span></div>
+          <div className="breadcrumb"><Link to="/">Home</Link> / <span>Shop</span></div>
         </div>
       </div>
 
