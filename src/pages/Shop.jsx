@@ -5,6 +5,23 @@ import ProductCard from '../components/ui/ProductCard';
 import { products, categories } from '../data/mockData';
 import '../styles/pages.css';
 
+// Import Modest category example images
+import img1 from '../assests/Modest/Black and White Cut Abaya .jpeg';
+import img2 from '../assests/Modest/Black Umbrella Abaya .jpeg';
+import img3 from '../assests/Modest/Blue Open Cut Abaya .jpeg';
+import img4 from '../assests/Modest/Modest Navy Frok Abaya .jpeg';
+import img5 from '../assests/Modest/Modest Open Cut Abaya.jpeg';
+import img6 from '../assests/Modest/Pink Floral Abaya .jpeg';
+
+const modestExamples = [
+  { id: 1, name: 'Black and White Cut Abaya', img: img1 },
+  { id: 2, name: 'Black Umbrella Abaya', img: img2 },
+  { id: 3, name: 'Blue Open Cut Abaya', img: img3 },
+  { id: 4, name: 'Modest Navy Frok Abaya', img: img4 },
+  { id: 5, name: 'Modest Open Cut Abaya', img: img5 },
+  { id: 6, name: 'Pink Floral Abaya', img: img6 },
+];
+
 export default function Shop() {
   const [searchParams] = useSearchParams();
   const [filtered, setFiltered]     = useState(products.filter(p => p.isActive));
@@ -121,7 +138,7 @@ export default function Shop() {
           {/* Main */}
           <div>
             <div className="shop-toolbar">
-              <span className="results">{filtered.length} products found{selectedCat ? ` in ${topCategories.find(c=>c.categoryID===selectedCat)?.categoryName}` : ''}{search ? ` for "${search}"` : ''}</span>
+              <span className="results">{selectedCat === 1 ? `${modestExamples.length} Modest examples` : `${filtered.length} products found${selectedCat ? ` in ${topCategories.find(c=>c.categoryID===selectedCat)?.categoryName}` : ''}${search ? ` for "${search}"` : ''}`}</span>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                 <select className="form-control" style={{ width:'auto', padding:'8px 14px' }} value={sortBy} onChange={e => setSortBy(e.target.value)}>
                   <option value="default">Sort: Default</option>
@@ -137,7 +154,19 @@ export default function Shop() {
               </div>
             </div>
 
-            {filtered.length === 0 ? (
+            {selectedCat === 1 ? (
+              // Display Modest examples instead of products
+              <div className="products-grid">
+                {modestExamples.map(example => (
+                  <div key={example.id} style={{ cursor: 'pointer' }}>
+                    <div style={{ background: '#F1E9E9', borderRadius: '8px', overflow: 'hidden', marginBottom: '12px', height: '250px' }}>
+                      <img src={example.img} alt={example.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ textAlign: 'center', fontWeight: '600', color: 'var(--text-dark)' }}>{example.name}</div>
+                  </div>
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="empty-state">
                 <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
                 <h3>No products found</h3>
