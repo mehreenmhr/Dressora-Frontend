@@ -148,7 +148,7 @@ export default function Shop() {
               <div className="products-grid">
                 {filtered.map(p => <ProductCard key={p.productID} product={p} />)}
               </div>
-            )
+            )}
           </div>
         </div>
       </div>
