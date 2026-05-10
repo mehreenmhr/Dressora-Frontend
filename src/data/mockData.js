@@ -124,8 +124,10 @@ export const getShipping        = (orderID) => shippings.find(s => s.orderID ===
 export const getPayment         = (orderID) => payments.find(p => p.orderID === orderID);
 export const getReviewsByProduct= (id) => reviews.filter(r => r.productID === id);
 export const getAddressesByCustomer = (id) => addresses.filter(a => a.customerID === id);
-export const featuredProducts   = products.filter(p => p.isActive).slice(0, 8);
-export const newArrivals        = products.filter(p => p.isActive).slice(-4);
+export const featuredProducts   = products.filter(p => p.isActive && (p.categoryID === 4 || p.categoryID === 5)).slice(0, 8);
+export const newArrivals        = products.filter(p => p.isActive && (p.categoryID === 4 || p.categoryID === 5)).slice(-4);
+
+export const orderStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
 
 export const orderStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
 
