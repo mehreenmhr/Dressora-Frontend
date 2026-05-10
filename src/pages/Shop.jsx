@@ -180,7 +180,7 @@ export default function Shop() {
                           <span style={{ fontSize: '13px', color: 'var(--text-dark)', fontWeight: '600' }}>Rs. {example.basePrice}</span>
                         )}
                       </div>
-                      <button style={{ width: '100%', padding: '8px 12px', background: 'var(--gradient)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Add to Cart</button>
+                      <button style={{ width: '100%', padding: '8px 12px', background: 'linear-gradient(135deg, #E491C9, #982598)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Add to Cart</button>
                     </div>
                   </div>
                 ))}
