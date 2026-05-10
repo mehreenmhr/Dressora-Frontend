@@ -3,28 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products, categories } from '../data/mockData';
-import { useCart } from '../context/CartContext';
 import '../styles/pages.css';
 
-// Import Modest category example images
-import img1 from '../assests/Modest/Black and White Cut Abaya .jpeg';
-import img2 from '../assests/Modest/Black Umbrella Abaya .jpeg';
-import img3 from '../assests/Modest/Blue Open Cut Abaya .jpeg';
-import img4 from '../assests/Modest/Modest Navy Frok Abaya .jpeg';
-import img5 from '../assests/Modest/Modest Open Cut Abaya.jpeg';
-import img6 from '../assests/Modest/Pink Floral Abaya .jpeg';
-
-const modestExamples = [
-  { productID: 101, productName: 'Black and White Cut Abaya', description: 'Elegant black and white cut abaya', basePrice: 4500, rating: 4.8, reviewCount: 28, discount: 15, image: img1, isActive: true, categoryID: 4, sku: 'MOD-001' },
-  { productID: 102, productName: 'Black Umbrella Abaya', description: 'Classic black umbrella style abaya', basePrice: 5200, rating: 4.7, reviewCount: 19, discount: 0, image: img2, isActive: true, categoryID: 4, sku: 'MOD-002' },
-  { productID: 103, productName: 'Blue Open Cut Abaya', description: 'Beautiful blue open cut abaya', basePrice: 4800, rating: 4.9, reviewCount: 35, discount: 10, image: img3, isActive: true, categoryID: 4, sku: 'MOD-003' },
-  { productID: 104, productName: 'Modest Navy Frok Abaya', description: 'Navy frock style modest abaya', basePrice: 5000, rating: 4.6, reviewCount: 22, discount: 20, image: img4, isActive: true, categoryID: 4, sku: 'MOD-004' },
-  { productID: 105, productName: 'Modest Open Cut Abaya', description: 'Stylish open cut modest abaya', basePrice: 4700, rating: 4.8, reviewCount: 31, discount: 0, image: img5, isActive: true, categoryID: 4, sku: 'MOD-005' },
-  { productID: 106, productName: 'Pink Floral Abaya', description: 'Pink floral printed modest abaya', basePrice: 4900, rating: 4.9, reviewCount: 42, discount: 15, image: img6, isActive: true, categoryID: 4, sku: 'MOD-006' },
-];
-
 export default function Shop() {
-  const { addToCart } = useCart();
   const [searchParams] = useSearchParams();
   const [filtered, setFiltered]     = useState(products.filter(p => p.isActive));
   const [search, setSearch]         = useState(searchParams.get('search') || '');
@@ -156,38 +137,7 @@ export default function Shop() {
               </div>
             </div>
 
-            {selectedCat === 1 ? (
-              <div className="products-grid">
-                {modestExamples.map(example => (
-                  <div key={example.productID} className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ background: '#F1E9E9', borderRadius: '8px 8px 0 0', overflow: 'hidden', height: '200px', marginBottom: '12px' }}>
-                      <img src={example.image} alt={example.productName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
-                    <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--pink)', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase' }}>SAMPLE</div>
-                      <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--text-dark)' }}>{example.productName}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>{example.description}</div>
-                      <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', alignItems: 'center' }}>
-                        <span style={{ color: '#FFA500', fontSize: '13px' }}>{'★'.repeat(Math.floor(example.rating))}{'☆'.repeat(5-Math.floor(example.rating))}</span>
-                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>({example.reviewCount})</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: 'auto', marginBottom: '8px' }}>
-                        {example.discount > 0 ? (
-                          <>
-                            <span style={{ fontSize: '13px', color: 'var(--text-dark)', fontWeight: '600' }}>Rs. {Math.round(example.basePrice * (1 - example.discount / 100))}</span>
-                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textDecoration: 'line-through' }}>Rs. {example.basePrice}</span>
-                            <span style={{ fontSize: '11px', background: 'var(--pink)', color: 'white', padding: '2px 6px', borderRadius: '4px' }}>-{example.discount}%</span>
-                          </>
-                        ) : (
-                          <span style={{ fontSize: '13px', color: 'var(--text-dark)', fontWeight: '600' }}>Rs. {example.basePrice}</span>
-                        )}
-                      </div>
-                      <button onClick={() => addToCart(example.productID)} style={{ width: '100%', padding: '8px 12px', background: 'linear-gradient(135deg, #E491C9, #982598)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Add to Cart</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : filtered.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="empty-state">
                 <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
                 <h3>No products found</h3>
@@ -198,7 +148,7 @@ export default function Shop() {
               <div className="products-grid">
                 {filtered.map(p => <ProductCard key={p.productID} product={p} />)}
               </div>
-            )}
+            )
           </div>
         </div>
       </div>

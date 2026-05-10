@@ -12,9 +12,15 @@ export default function ProductCard({ product }) {
     <div className="product-card">
       <Link to={`/product/${product.productID}`}>
         <div className="product-card-img">
-          <div className="img-placeholder" style={{ aspectRatio: '3/4' }}>
-            <span>📷 Product Image</span>
-          </div>
+          {product.image ? (
+            <div style={{ background: '#F1E9E9', borderRadius: '8px 8px 0 0', overflow: 'hidden', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={product.image} alt={product.productName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+          ) : (
+            <div className="img-placeholder" style={{ aspectRatio: '3/4' }}>
+              <span>📷 Product Image</span>
+            </div>
+          )}
           <div className="product-card-badges">
             {product.discount > 0 && <span className="badge badge-primary">-{product.discount}%</span>}
             {product.stockQuantity < 10 && product.stockQuantity > 0 && <span className="badge badge-warning">Low Stock</span>}

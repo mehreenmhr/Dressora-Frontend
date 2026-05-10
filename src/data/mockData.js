@@ -2,6 +2,14 @@
 // DRESSORA — Mock Data (matches full DB schema)
 // ============================================================
 
+// Import Modest category example images
+import img1 from '../assests/Modest/Black and White Cut Abaya .jpeg';
+import img2 from '../assests/Modest/Black Umbrella Abaya .jpeg';
+import img3 from '../assests/Modest/Blue Open Cut Abaya .jpeg';
+import img4 from '../assests/Modest/Modest Navy Frok Abaya .jpeg';
+import img5 from '../assests/Modest/Modest Open Cut Abaya.jpeg';
+import img6 from '../assests/Modest/Pink Floral Abaya .jpeg';
+
 export const categories = [
   { categoryID: 1, parentCategoryID: null, categoryName: "Modest", description: "Modest fashion styles", icon: "👗" },
   { categoryID: 2, parentCategoryID: null, categoryName: "Eastern", description: "Eastern wear collection", icon: "🥻" },
@@ -55,6 +63,12 @@ export const products = [
   { productID: 10, sellerID: 1, categoryID: 8,  productName: "Pastel Casual Dress",        description: "Light and airy pastel dress for everyday wear.", basePrice: 1200, stockQuantity: 100, sku: "ACC-EAR-010", isActive: true, createdAt: "2024-04-10", rating: 4.9, reviewCount: 67, discount: 0 },
   { productID: 11, sellerID: 1, categoryID: 9,  productName: "Striped Casual Top",         description: "Breathable striped top for warm seasons.", basePrice: 1900, stockQuantity: 50, sku: "SHT-LNB-011", isActive: true, createdAt: "2024-04-15", rating: 4.2, reviewCount: 9, discount: 0 },
   { productID: 12, sellerID: 1, categoryID: 7,  productName: "Gold Lehenga Set",           description: "Stunning gold embellished lehenga set for celebrations.", basePrice: 2900, stockQuantity: 35, sku: "DRS-PST-012", isActive: false, createdAt: "2024-04-20", rating: 4.5, reviewCount: 18, discount: 30 },
+  { productID: 101, sellerID: 1, categoryID: 4, productName: 'Black and White Cut Abaya', description: 'Elegant black and white cut abaya', basePrice: 4500, stockQuantity: 50, sku: 'MOD-001', isActive: true, createdAt: '2026-05-01', rating: 4.8, reviewCount: 28, discount: 15, image: img1 },
+  { productID: 102, sellerID: 1, categoryID: 4, productName: 'Black Umbrella Abaya', description: 'Classic black umbrella style abaya', basePrice: 5200, stockQuantity: 50, sku: 'MOD-002', isActive: true, createdAt: '2026-05-01', rating: 4.7, reviewCount: 19, discount: 0, image: img2 },
+  { productID: 103, sellerID: 1, categoryID: 4, productName: 'Blue Open Cut Abaya', description: 'Beautiful blue open cut abaya', basePrice: 4800, stockQuantity: 50, sku: 'MOD-003', isActive: true, createdAt: '2026-05-01', rating: 4.9, reviewCount: 35, discount: 10, image: img3 },
+  { productID: 104, sellerID: 1, categoryID: 4, productName: 'Modest Navy Frok Abaya', description: 'Navy frock style modest abaya', basePrice: 5000, stockQuantity: 50, sku: 'MOD-004', isActive: true, createdAt: '2026-05-01', rating: 4.6, reviewCount: 22, discount: 20, image: img4 },
+  { productID: 105, sellerID: 1, categoryID: 4, productName: 'Modest Open Cut Abaya', description: 'Stylish open cut modest abaya', basePrice: 4700, stockQuantity: 50, sku: 'MOD-005', isActive: true, createdAt: '2026-05-01', rating: 4.8, reviewCount: 31, discount: 0, image: img5 },
+  { productID: 106, sellerID: 1, categoryID: 4, productName: 'Pink Floral Abaya', description: 'Pink floral printed modest abaya', basePrice: 4900, stockQuantity: 50, sku: 'MOD-006', isActive: true, createdAt: '2026-05-01', rating: 4.9, reviewCount: 42, discount: 15, image: img6 },
 ];
 
 export const carts = [
