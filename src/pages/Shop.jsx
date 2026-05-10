@@ -170,7 +170,7 @@ export default function Shop() {
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>({example.reviewCount})</span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: 'auto', marginBottom: '8px' }}>
-                        {example.discount > 0 && (
+                        {example.discount > 0 ? (
                           <>
                             <span style={{ fontSize: '13px', color: 'var(--text-dark)', fontWeight: '600' }}>Rs. {Math.round(example.basePrice * (1 - example.discount / 100))}</span>
                             <span style={{ fontSize: '12px', color: 'var(--text-muted)', textDecoration: 'line-through' }}>Rs. {example.basePrice}</span>
