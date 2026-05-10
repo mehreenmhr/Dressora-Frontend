@@ -121,7 +121,7 @@ export default function Shop() {
           {/* Main */}
           <div>
             <div className="shop-toolbar">
-              <span className="results">{selectedCat === 1 ? `${modestExamples.length} Modest examples` : `${filtered.length} products found${selectedCat ? ` in ${topCategories.find(c=>c.categoryID===selectedCat)?.categoryName}` : ''}${search ? ` for "${search}"` : ''}`}</span>
+              <span className="results">{`${filtered.length} products found${selectedCat ? ` in ${topCategories.find(c=>c.categoryID===selectedCat)?.categoryName}` : ''}${search ? ` for "${search}"` : ''}`}</span>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                 <select className="form-control" style={{ width:'auto', padding:'8px 14px' }} value={sortBy} onChange={e => setSortBy(e.target.value)}>
                   <option value="default">Sort: Default</option>
@@ -155,3 +155,4 @@ export default function Shop() {
     </div>
   );
 }
+
