@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products, categories } from '../data/mockData';
+import { useCart } from '../context/CartContext';
 import '../styles/pages.css';
 
 // Import Modest category example images
@@ -23,6 +24,7 @@ const modestExamples = [
 ];
 
 export default function Shop() {
+  const { addToCart } = useCart();
   const [searchParams] = useSearchParams();
   const [filtered, setFiltered]     = useState(products.filter(p => p.isActive));
   const [search, setSearch]         = useState(searchParams.get('search') || '');
@@ -180,7 +182,7 @@ export default function Shop() {
                           <span style={{ fontSize: '13px', color: 'var(--text-dark)', fontWeight: '600' }}>Rs. {example.basePrice}</span>
                         )}
                       </div>
-                      <button style={{ width: '100%', padding: '8px 12px', background: 'linear-gradient(135deg, #E491C9, #982598)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Add to Cart</button>
+                      <button onClick={() => addToCart(example.productID)} style={{ width: '100%', padding: '8px 12px', background: 'linear-gradient(135deg, #E491C9, #982598)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Add to Cart</button>
                     </div>
                   </div>
                 ))}
