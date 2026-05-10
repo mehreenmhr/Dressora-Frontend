@@ -5,11 +5,14 @@ import { categories, featuredProducts, reviews, newArrivals } from '../data/mock
 import '../styles/home.css';
 
 // Import Modest category images
-import modestImg1 from '../assests/Modest/abdul-raheem-kannath-9yMbkhLcWnU-unsplash.jpg.jpeg';
-import modestImg2 from '../assests/Modest/abdul-raheem-kannath-atUAW7rzs28-unsplash.jpg.jpeg';
-import modestImg3 from '../assests/Modest/abdul-raheem-kannath-edN3QRJlSKo-unsplash.jpg.jpeg';
+import img1 from '../assests/Modest/Black and White Cut Abaya .jpeg';
+import img2 from '../assests/Modest/Black Umbrella Abaya .jpeg';
+import img3 from '../assests/Modest/Blue Open Cut Abaya .jpeg';
+import img4 from '../assests/Modest/Modest Navy Frok Abaya .jpeg';
+import img5 from '../assests/Modest/Modest Open Cut Abaya.jpeg';
+import img6 from '../assests/Modest/Pink Floral Abaya .jpeg';
 
-const modestImages = [modestImg1, modestImg2, modestImg3];
+const modestImages = [img1, img2, img3, img4, img5, img6];
 
 const features = [
   { icon: Truck,       title: 'Free Delivery',    sub: 'On orders over Rs. 2,000' },
