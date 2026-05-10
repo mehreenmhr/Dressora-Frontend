@@ -80,7 +80,7 @@ export default function Home() {
               <Link to={`/shop?category=${cat.categoryID}`} key={cat.categoryID} className="category-card">
                 <div className="category-card-img">
                   {cat.categoryID === 1 && modestImages[index % modestImages.length] ? (
-                    <img src={modestImages[index % modestImages.length]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={modestImages[index % modestImages.length]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
                   ) : (
                     <div className="img-placeholder" style={{ height: '100%' }}>
                       <span>{cat.icon}</span>
