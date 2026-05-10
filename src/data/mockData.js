@@ -129,8 +129,6 @@ export const newArrivals        = products.filter(p => p.isActive && (p.category
 
 export const orderStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
 
-export const orderStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
-
 export const formatPrice = (price) => `Rs. ${price.toLocaleString()}`;
 export const getDiscount = (product) =>
   product.discount > 0 ? Math.round(product.basePrice * (1 - product.discount / 100)) : product.basePrice;
