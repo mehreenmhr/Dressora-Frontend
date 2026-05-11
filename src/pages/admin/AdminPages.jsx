@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Package, ShoppingBag, Tag, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut } from 'lucide-react';
+import { Users, Package, ShoppingBag, Tag, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { users, products, orders, coupons, categories, formatPrice, customers, sellers } from '../../data/mockData';
+import { users, products, orders, coupons, formatPrice, customers, sellers } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function AdminSidebar({ active }) {
@@ -11,7 +11,7 @@ function AdminSidebar({ active }) {
   const links = [
     { path:'/admin',            icon: BarChart2,  label:'Dashboard',  section:'Main' },
     { path:'/admin/users',      icon: Users,      label:'Users',      section:'Main' },
-    { path:'/admin/products',   icon: Package,    label:'Products',   section:'Catalog' },
+    { path:'/admin/products',   icon: Package,    label:'Products',   section:'Main' },
     { path:'/admin/orders',     icon: ShoppingBag,label:'Orders',     section:'Sales' },
     { path:'/admin/coupons',    icon: Tag,        label:'Coupons',    section:'Sales' },
   ];
@@ -133,7 +133,7 @@ export function AdminProducts() {
         <div className="dashboard-header"><h1>All Products</h1><p>Monitor and manage all product listings</p></div>
         <div className="data-table">
           <table>
-            <thead><tr><th>Image</th><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
+            <thead><tr><th>Image</th><th>Product</th><th>Seller</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
             <tbody>
               {prodList.map(p => (
                 <tr key={p.productID}>
@@ -143,23 +143,17 @@ export function AdminProducts() {
                       alt={p.productName}
                       style={{ 
                         width: 50, 
-                        height: 50, 
-                        objectFit: 'cover',
-                        borderRadius: 6
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:50px;height:50px;background:#f5f5f5;border-radius:6px;font-size:10px;color:#999;">📷</div>';
+                        height: 50,
+                        borderRadius: 8,
+                        objectFit: 'cover'
                       }}
                     />
                   </td>
-                  <td><div style={{ fontWeight:600 }}>{p.productName}</div><div style={{ fontSize:11, color:'var(--text-muted)' }}>{p.sku}</div></td>
                   <td>{sellers.find(s=>s.sellerID===p.sellerID)?.storeName}</td>
-                  <td>{categories.find(c=>c.categoryID===p.categoryID)?.categoryName}</td>
                   <td>{formatPrice(p.basePrice)}</td>
                   <td><span className={`badge ${p.stockQuantity===0?'badge-danger':p.stockQuantity<10?'badge-warning':'badge-success'}`}>{p.stockQuantity}</span></td>
                   <td><button onClick={()=>toggleActive(p.productID)} style={{ background:'none', border:'none', cursor:'pointer', color:p.isActive?'#1a8a4a':'var(--text-muted)' }}>{p.isActive?<ToggleRight size={22}/>:<ToggleLeft size={22}/>}</button></td>
-                  <td>{p.rating}★ ({p.reviewCount})</td>
+                  <td><div style={{ display:'flex', alignItems:'center', gap:6 }}><Star size={14} fill='gold' color='gold'/> {p.rating}</div></td>
                 </tr>
               ))}
             </tbody>

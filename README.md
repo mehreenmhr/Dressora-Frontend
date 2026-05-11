@@ -169,8 +169,8 @@ src/
 - **Borders**: `#e8e8f0` (Light)
 
 ### Typography
-- **Headings**: Playfair Display (Serif)
-- **Body**: Inter (Sans-serif)
+- **Headings**: Arima Madurai (Creative, flowing curves)
+- **Body**: Mulish (Minimalist, clean readability)
 
 ### Spacing & Sizing
 - **Container**: 1200px max-width
@@ -203,9 +203,9 @@ src/
 ### Admin Features
 - Dashboard with analytics
 - Product management (CRUD)
-- Category management
 - Order monitoring
 - User management
+- Coupon management
 
 ### Seller Features
 - Store management
@@ -307,12 +307,17 @@ For issues and questions:
 
 ## 🗓️ Version History
 
-### v1.0.0 (May 10, 2026)
+### v1.0.0 (May 11, 2026)
 - Initial release
 - 3 main categories: Modest, Eastern, Western
 - Complete e-commerce functionality
 - Multi-role user system
 - Responsive design
+- Updated typography: Arima Madurai & Mulish fonts
+- Enhanced mobile responsiveness for admin/seller panels
+- Removed catalog management from admin panel
+- Improved login/register layout with swapped sides
+- Fixed image display issues throughout application
 
 ## 🔮 Future Enhancements
 
