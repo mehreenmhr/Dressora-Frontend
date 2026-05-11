@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Package, ShoppingBag, Tag, FolderTree, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut } from 'lucide-react';
+import { Users, Package, ShoppingBag, Tag, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { users, products, orders, coupons, categories, formatPrice, customers, sellers } from '../../data/mockData';
 import '../../styles/pages.css';
@@ -12,7 +12,6 @@ function AdminSidebar({ active }) {
     { path:'/admin',            icon: BarChart2,  label:'Dashboard',  section:'Main' },
     { path:'/admin/users',      icon: Users,      label:'Users',      section:'Main' },
     { path:'/admin/products',   icon: Package,    label:'Products',   section:'Catalog' },
-    { path:'/admin/categories', icon: FolderTree, label:'Categories', section:'Catalog' },
     { path:'/admin/orders',     icon: ShoppingBag,label:'Orders',     section:'Sales' },
     { path:'/admin/coupons',    icon: Tag,        label:'Coupons',    section:'Sales' },
   ];
@@ -171,75 +170,6 @@ export function AdminProducts() {
   );
 }
 
-export function AdminCategories() {
-  const [catList, setCatList] = useState(categories);
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ categoryName:'', description:'', parentCategoryID:'' });
-
-  const handleAdd = (e) => {
-    e.preventDefault();
-    setCatList(prev => [...prev, { categoryID: Date.now(), categoryName:form.categoryName, description:form.description, parentCategoryID: form.parentCategoryID ? Number(form.parentCategoryID) : null, icon:'📁' }]);
-    setShowModal(false); setForm({ categoryName:'', description:'', parentCategoryID:'' });
-  };
-
-  const getChildren = (id) => catList.filter(c => c.parentCategoryID === id);
-
-  return (
-    <div className="dashboard-layout">
-      <AdminSidebar active="/admin/categories" />
-      <main className="dashboard-main">
-        <div className="dashboard-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-          <div><h1>Categories</h1><p>Manage product category hierarchy</p></div>
-          <button className="btn btn-primary" onClick={()=>setShowModal(true)}><Plus size={16}/> Add Category</button>
-        </div>
-
-        <div className="data-table">
-          <table>
-            <thead><tr><th>Category</th><th>Parent</th><th>Description</th><th>Subcategories</th><th>Actions</th></tr></thead>
-            <tbody>
-              {catList.map(cat => (
-                <tr key={cat.categoryID}>
-                  <td><span style={{ fontWeight:600 }}>{cat.icon} {cat.categoryName}</span></td>
-                  <td>{cat.parentCategoryID ? catList.find(c=>c.categoryID===cat.parentCategoryID)?.categoryName : <span className="badge badge-muted">Top Level</span>}</td>
-                  <td style={{ fontSize:13, color:'var(--text-muted)' }}>{cat.description}</td>
-                  <td><span className="badge badge-info">{getChildren(cat.categoryID).length}</span></td>
-                  <td>
-                    <button className="table-action-btn"><Edit2 size={12}/> Edit</button>
-                    <button className="table-action-btn danger" onClick={()=>setCatList(p=>p.filter(c=>c.categoryID!==cat.categoryID))}><Trash2 size={12}/> Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {showModal && (
-          <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowModal(false)}>
-            <div className="modal">
-              <div className="modal-header"><h3>Add Category</h3><button className="modal-close" onClick={()=>setShowModal(false)}>✕</button></div>
-              <form onSubmit={handleAdd}>
-                <div className="modal-body">
-                  <div className="form-group"><label className="form-label">Category Name</label><input className="form-control" value={form.categoryName} onChange={e=>setForm(f=>({...f,categoryName:e.target.value}))} required /></div>
-                  <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={2} value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} /></div>
-                  <div className="form-group"><label className="form-label">Parent Category (optional)</label>
-                    <select className="form-control form-select" value={form.parentCategoryID} onChange={e=>setForm(f=>({...f,parentCategoryID:e.target.value}))}>
-                      <option value="">— None (Top Level) —</option>
-                      {catList.filter(c=>!c.parentCategoryID).map(c=><option key={c.categoryID} value={c.categoryID}>{c.categoryName}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={()=>setShowModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary btn-sm">Add Category</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
 
 export function AdminOrders() {
   const [orderList, setOrderList] = useState(orders);

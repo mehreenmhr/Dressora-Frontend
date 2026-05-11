@@ -8,8 +8,8 @@ import logo from '../../assets/logo.png';
 
 const authLeftStyle = {
   backgroundImage: `url(${loginBg2})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center 5%',
+  backgroundSize: 'contain',
+  backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat'
 };
 
@@ -38,8 +38,7 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="auth-left" style={authLeftStyle}></div>
-
+      {/* Left panel - Form */}
       <div className="auth-right">
         <div className="auth-form-wrap" style={{ maxWidth:480 }}>
           <button onClick={() => navigate(-1)} style={{ display:'flex', alignItems:'center', gap:6, marginBottom:20, background:'none', border:'none', color:'#f92c8b', cursor:'pointer', fontSize:14, fontWeight:600 }}>
@@ -112,6 +111,9 @@ export default function Register() {
           <p className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></p>
         </div>
       </div>
+
+      {/* Right panel - Background */}
+      <div className="auth-left" style={authLeftStyle}></div>
     </div>
   );
 }

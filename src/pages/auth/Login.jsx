@@ -10,8 +10,8 @@ import logo from '../../assets/logo.png';
 
 const authLeftStyle = {
   backgroundImage: `url(${loginBg2})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center 5%',
+  backgroundSize: 'contain',
+  backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat'
 };
 
@@ -50,10 +50,7 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      {/* Left panel */}
-      <div className="auth-left" style={authLeftStyle}></div>
-
-      {/* Right panel */}
+      {/* Left panel - Form */}
       <div className="auth-right">
         <div className="auth-form-wrap">
           <button onClick={() => navigate(-1)} style={{ display:'flex', alignItems:'center', gap:6, marginBottom:20, background:'none', border:'none', color:'#f92c8b', cursor:'pointer', fontSize:14, fontWeight:600 }}>
@@ -99,6 +96,9 @@ export default function Login() {
           <p className="auth-switch">Don't have an account? <Link to="/register">Create one</Link></p>
         </div>
       </div>
+
+      {/* Right panel - Background */}
+      <div className="auth-left" style={authLeftStyle}></div>
     </div>
   );
 }
