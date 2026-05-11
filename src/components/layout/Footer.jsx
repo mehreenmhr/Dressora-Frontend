@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import logo from '../../assets/logo.png';
 
 export default function Footer() {
   return (
@@ -9,24 +10,17 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <span style={{ width: 36, height: 36, background: 'linear-gradient(90deg,#f92c8b,#b02cd6)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                <ShoppingBag size={18} />
-              </span>
-              <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.5rem', fontWeight: 700, background: 'linear-gradient(90deg,#f92c8b,#b02cd6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                Dressora
-              </span>
-            </div>
+            <img src={logo} alt="Dressora Logo" style={{ height: 56, marginBottom: 16 }} />
             <p style={{ fontSize: 14, lineHeight: 1.7, maxWidth: 280, marginBottom: 20 }}>
               Your premier destination for fashion-forward clothing, accessories, and lifestyle products. Curated with love, delivered with care.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
-                <a key={i} href="#" style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.06)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', transition: 'all 0.25s' }}
+                <button key={i} style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.06)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', transition: 'all 0.25s', border: 'none', cursor: 'pointer' }}
                   onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(90deg,#f92c8b,#b02cd6)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
                   <Icon size={15} />
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -84,9 +78,9 @@ export default function Footer() {
         <div style={{ padding: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, fontSize: 13 }}>
           <p>© 2026 Dressora. All rights reserved.</p>
           <div style={{ display: 'flex', gap: 20 }}>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.5)' }}>Privacy Policy</a>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.5)' }}>Terms of Service</a>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.5)' }}>Returns</a>
+            <button onClick={() => {}} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>Privacy Policy</button>
+            <button onClick={() => {}} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>Terms of Service</button>
+            <button onClick={() => {}} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>Returns</button>
           </div>
         </div>
       </div>

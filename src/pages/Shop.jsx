@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Grid, List, SlidersHorizontal, X } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products, categories } from '../data/mockData';
 import '../styles/pages.css';
 
 export default function Shop() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filtered, setFiltered]     = useState(products.filter(p => p.isActive));
   const [search, setSearch]         = useState(searchParams.get('search') || '');
   const [selectedCat, setSelectedCat] = useState(searchParams.get('category') ? Number(searchParams.get('category')) : null);
+
+  // Update state when URL parameters change
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+    setSelectedCat(searchParams.get('category') ? Number(searchParams.get('category')) : null);
+  }, [searchParams]);
   const [priceMin, setPriceMin]     = useState('');
   const [priceMax, setPriceMax]     = useState('');
   const [sortBy, setSortBy]         = useState('default');
@@ -19,7 +25,18 @@ export default function Shop() {
   useEffect(() => {
     let result = products.filter(p => p.isActive);
     if (search)      result = result.filter(p => p.productName.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase()));
-    if (selectedCat) result = result.filter(p => p.categoryID === selectedCat);
+    if (selectedCat) {
+      const selectedCategory = categories.find(c => c.categoryID === selectedCat);
+      if (selectedCategory && !selectedCategory.parentCategoryID) {
+        // It's a top-level category, include products from this and all child categories
+        const childCategories = categories.filter(c => c.parentCategoryID === selectedCat).map(c => c.categoryID);
+        const allCategoryIds = [selectedCat, ...childCategories];
+        result = result.filter(p => allCategoryIds.includes(p.categoryID));
+      } else {
+        // It's a subcategory or direct match
+        result = result.filter(p => p.categoryID === selectedCat);
+      }
+    }
     if (priceMin)    result = result.filter(p => p.basePrice >= Number(priceMin));
     if (priceMax)    result = result.filter(p => p.basePrice <= Number(priceMax));
     if (sortBy === 'price-asc')  result = [...result].sort((a,b) => a.basePrice - b.basePrice);
@@ -85,7 +102,7 @@ export default function Shop() {
         <div className="container">
           <h1>Shop Collection</h1>
           <p>Discover our latest fashion arrivals</p>
-          <div className="breadcrumb"><a href="/">Home</a> / <span>Shop</span></div>
+          <div className="breadcrumb"><Link to="/">Home</Link> / <span>Shop</span></div>
         </div>
       </div>
 
@@ -110,7 +127,7 @@ export default function Shop() {
           {/* Main */}
           <div>
             <div className="shop-toolbar">
-              <span className="results">{filtered.length} products found{selectedCat ? ` in ${topCategories.find(c=>c.categoryID===selectedCat)?.categoryName}` : ''}{search ? ` for "${search}"` : ''}</span>
+              <span className="results">{`${filtered.length} products found${selectedCat ? ` in ${topCategories.find(c=>c.categoryID===selectedCat)?.categoryName}` : ''}${search ? ` for "${search}"` : ''}`}</span>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                 <select className="form-control" style={{ width:'auto', padding:'8px 14px' }} value={sortBy} onChange={e => setSortBy(e.target.value)}>
                   <option value="default">Sort: Default</option>
@@ -144,3 +161,4 @@ export default function Shop() {
     </div>
   );
 }
+

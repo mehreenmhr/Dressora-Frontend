@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Package, ShoppingBag, Tag, FolderTree, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Users, Package, ShoppingBag, Tag, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { users, products, orders, coupons, categories, formatPrice, customers, sellers } from '../../data/mockData';
+import { users, products, orders, coupons, formatPrice, customers, sellers } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function AdminSidebar({ active }) {
@@ -11,8 +11,7 @@ function AdminSidebar({ active }) {
   const links = [
     { path:'/admin',            icon: BarChart2,  label:'Dashboard',  section:'Main' },
     { path:'/admin/users',      icon: Users,      label:'Users',      section:'Main' },
-    { path:'/admin/products',   icon: Package,    label:'Products',   section:'Catalog' },
-    { path:'/admin/categories', icon: FolderTree, label:'Categories', section:'Catalog' },
+    { path:'/admin/products',   icon: Package,    label:'Products',   section:'Main' },
     { path:'/admin/orders',     icon: ShoppingBag,label:'Orders',     section:'Sales' },
     { path:'/admin/coupons',    icon: Tag,        label:'Coupons',    section:'Sales' },
   ];
@@ -29,7 +28,9 @@ function AdminSidebar({ active }) {
         </div>
       ))}
       <div className="dash-nav-section" style={{ marginTop:24, borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:12 }}>
-        <button className="dash-nav-link" style={{ border:'none', background:'none', width:'100%', cursor:'pointer', color:'#f87171' }} onClick={()=>{logout();navigate('/');}}>Sign Out</button>
+        <button className="btn btn-outline btn-sm dash-nav-link" onClick={()=>{logout();navigate('/');}}>
+          <LogOut size={14} /> Sign Out
+        </button>
       </div>
     </div>
   );
@@ -132,17 +133,27 @@ export function AdminProducts() {
         <div className="dashboard-header"><h1>All Products</h1><p>Monitor and manage all product listings</p></div>
         <div className="data-table">
           <table>
-            <thead><tr><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
+            <thead><tr><th>Image</th><th>Product</th><th>Seller</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
             <tbody>
               {prodList.map(p => (
                 <tr key={p.productID}>
-                  <td><div style={{ fontWeight:600 }}>{p.productName}</div><div style={{ fontSize:11, color:'var(--text-muted)' }}>{p.sku}</div></td>
+                  <td>
+                    <img 
+                      src={p.image} 
+                      alt={p.productName}
+                      style={{ 
+                        width: 50, 
+                        height: 50,
+                        borderRadius: 8,
+                        objectFit: 'cover'
+                      }}
+                    />
+                  </td>
                   <td>{sellers.find(s=>s.sellerID===p.sellerID)?.storeName}</td>
-                  <td>{categories.find(c=>c.categoryID===p.categoryID)?.categoryName}</td>
                   <td>{formatPrice(p.basePrice)}</td>
                   <td><span className={`badge ${p.stockQuantity===0?'badge-danger':p.stockQuantity<10?'badge-warning':'badge-success'}`}>{p.stockQuantity}</span></td>
                   <td><button onClick={()=>toggleActive(p.productID)} style={{ background:'none', border:'none', cursor:'pointer', color:p.isActive?'#1a8a4a':'var(--text-muted)' }}>{p.isActive?<ToggleRight size={22}/>:<ToggleLeft size={22}/>}</button></td>
-                  <td>{p.rating}★ ({p.reviewCount})</td>
+                  <td><div style={{ display:'flex', alignItems:'center', gap:6 }}><Star size={14} fill='gold' color='gold'/> {p.rating}</div></td>
                 </tr>
               ))}
             </tbody>
@@ -153,76 +164,6 @@ export function AdminProducts() {
   );
 }
 
-export function AdminCategories() {
-  const [catList, setCatList] = useState(categories);
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ categoryName:'', description:'', parentCategoryID:'' });
-
-  const handleAdd = (e) => {
-    e.preventDefault();
-    setCatList(prev => [...prev, { categoryID: Date.now(), categoryName:form.categoryName, description:form.description, parentCategoryID: form.parentCategoryID ? Number(form.parentCategoryID) : null, icon:'📁' }]);
-    setShowModal(false); setForm({ categoryName:'', description:'', parentCategoryID:'' });
-  };
-
-  const topLevel = catList.filter(c => !c.parentCategoryID);
-  const getChildren = (id) => catList.filter(c => c.parentCategoryID === id);
-
-  return (
-    <div className="dashboard-layout">
-      <AdminSidebar active="/admin/categories" />
-      <main className="dashboard-main">
-        <div className="dashboard-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-          <div><h1>Categories</h1><p>Manage product category hierarchy</p></div>
-          <button className="btn btn-primary" onClick={()=>setShowModal(true)}><Plus size={16}/> Add Category</button>
-        </div>
-
-        <div className="data-table">
-          <table>
-            <thead><tr><th>Category</th><th>Parent</th><th>Description</th><th>Subcategories</th><th>Actions</th></tr></thead>
-            <tbody>
-              {catList.map(cat => (
-                <tr key={cat.categoryID}>
-                  <td><span style={{ fontWeight:600 }}>{cat.icon} {cat.categoryName}</span></td>
-                  <td>{cat.parentCategoryID ? catList.find(c=>c.categoryID===cat.parentCategoryID)?.categoryName : <span className="badge badge-muted">Top Level</span>}</td>
-                  <td style={{ fontSize:13, color:'var(--text-muted)' }}>{cat.description}</td>
-                  <td><span className="badge badge-info">{getChildren(cat.categoryID).length}</span></td>
-                  <td>
-                    <button className="table-action-btn"><Edit2 size={12}/> Edit</button>
-                    <button className="table-action-btn danger" onClick={()=>setCatList(p=>p.filter(c=>c.categoryID!==cat.categoryID))}><Trash2 size={12}/> Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {showModal && (
-          <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowModal(false)}>
-            <div className="modal">
-              <div className="modal-header"><h3>Add Category</h3><button className="modal-close" onClick={()=>setShowModal(false)}>✕</button></div>
-              <form onSubmit={handleAdd}>
-                <div className="modal-body">
-                  <div className="form-group"><label className="form-label">Category Name</label><input className="form-control" value={form.categoryName} onChange={e=>setForm(f=>({...f,categoryName:e.target.value}))} required /></div>
-                  <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={2} value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} /></div>
-                  <div className="form-group"><label className="form-label">Parent Category (optional)</label>
-                    <select className="form-control form-select" value={form.parentCategoryID} onChange={e=>setForm(f=>({...f,parentCategoryID:e.target.value}))}>
-                      <option value="">— None (Top Level) —</option>
-                      {catList.filter(c=>!c.parentCategoryID).map(c=><option key={c.categoryID} value={c.categoryID}>{c.categoryName}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={()=>setShowModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary btn-sm">Add Category</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
 
 export function AdminOrders() {
   const [orderList, setOrderList] = useState(orders);

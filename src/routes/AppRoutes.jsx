@@ -12,7 +12,7 @@ import Register       from '../pages/auth/Register';
 
 import { Profile, Orders, OrderDetail, Addresses } from '../pages/customer/CustomerPages';
 import { SellerDashboard, SellerProducts, SellerOrders } from '../pages/seller/SellerPages';
-import { AdminDashboard, AdminUsers, AdminProducts, AdminCategories, AdminOrders, AdminCoupons } from '../pages/admin/AdminPages';
+import { AdminDashboard, AdminUsers, AdminProducts, AdminOrders, AdminCoupons } from '../pages/admin/AdminPages';
 
 // Route guards
 function RequireAuth({ children }) {
@@ -64,7 +64,6 @@ export default function AppRoutes() {
       <Route path="/admin"              element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
       <Route path="/admin/users"        element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
       <Route path="/admin/products"     element={<RequireAdmin><AdminProducts /></RequireAdmin>} />
-      <Route path="/admin/categories"   element={<RequireAdmin><AdminCategories /></RequireAdmin>} />
       <Route path="/admin/orders"       element={<RequireAdmin><AdminOrders /></RequireAdmin>} />
       <Route path="/admin/coupons"      element={<RequireAdmin><AdminCoupons /></RequireAdmin>} />
 

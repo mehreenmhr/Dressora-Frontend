@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Share2, Star, CheckCircle, Truck, RefreshCw, Shield } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, CheckCircle, Truck, RefreshCw, Shield } from 'lucide-react';
 import { getProductById, getReviewsByProduct, formatPrice, getDiscount, categories } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ui/ProductCard';
@@ -50,18 +50,17 @@ export default function ProductDetail() {
           {/* Images */}
           <div className="product-images">
             <div className="product-main-img">
-              <div className="img-placeholder" style={{ height: '100%', minHeight: 480 }}>
-                <span>📷 Main Product Image</span>
-              </div>
-            </div>
-            <div className="product-thumbnails">
-              {[1,2,3,4].map(i => (
-                <div key={i} className={`product-thumb ${i===1?'active':''}`}>
-                  <div className="img-placeholder" style={{ height: 80 }}>
-                    <span style={{ fontSize: 10 }}>img {i}</span>
-                  </div>
+              {product.image ? (
+                <img 
+                  src={product.image} 
+                  alt={product.productName} 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 16 }} 
+                />
+              ) : (
+                <div className="img-placeholder" style={{ height: '100%', minHeight: 480 }}>
+                  <span>📷 {product.productName}</span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -104,8 +103,6 @@ export default function ProductDetail() {
               <button className="btn btn-primary" style={{ flex:2, justifyContent:'center' }} onClick={handleAddToCart} disabled={!product.isActive || product.stockQuantity === 0}>
                 {added ? <><CheckCircle size={16}/> Added!</> : <><ShoppingCart size={16}/> Add to Cart</>}
               </button>
-              <button className="btn btn-outline btn-icon"><Heart size={18} /></button>
-              <button className="btn btn-ghost btn-icon"><Share2 size={18} /></button>
             </div>
 
             {added && <div className="alert alert-success" style={{ marginTop: 12 }}>✓ Added to cart! <Link to="/cart" style={{ fontWeight:700, marginLeft:8 }}>View Cart →</Link></div>}

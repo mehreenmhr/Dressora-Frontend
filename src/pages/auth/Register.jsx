@@ -1,8 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, ShoppingBag } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/pages.css';
+import loginBg2 from '../../assets/Extra/login-bg-2.png';
+import logo from '../../assets/logo.png';
+
+const authLeftStyle = {
+  backgroundImage: `url(${loginBg2})`,
+  backgroundSize: 'contain',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat'
+};
 
 export default function Register() {
   const { register } = useAuth();
@@ -29,29 +38,13 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="auth-left">
-        <div className="auth-brand">
-          <div className="logo">Dressora</div>
-          <p>Join thousands of fashion lovers. Create your account and start exploring the latest trends.</p>
-          <div className="img-placeholder" style={{ width:280, height:260, borderRadius:20, margin:'32px auto' }}>
-            <span style={{ color:'rgba(255,255,255,0.5)', background:'rgba(255,255,255,0.05)' }}>📷 Register Image</span>
-          </div>
-          <div style={{ marginTop:16 }}>
-            {[{ icon:'🎁', text:'Earn loyalty points on every order' },{ icon:'💳', text:'Exclusive member-only discounts' },{ icon:'📦', text:'Track orders in real time' }].map(item => (
-              <div key={item.text} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, fontSize:14, color:'rgba(255,255,255,0.7)' }}>
-                <span>{item.icon}</span> {item.text}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
+      {/* Left panel - Form */}
       <div className="auth-right">
         <div className="auth-form-wrap" style={{ maxWidth:480 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:24 }}>
-            <span style={{ width:36, height:36, background:'linear-gradient(90deg,#f92c8b,#b02cd6)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', color:'white' }}><ShoppingBag size={18} /></span>
-            <span style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.3rem', fontWeight:700, background:'linear-gradient(90deg,#f92c8b,#b02cd6)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Dressora</span>
-          </div>
+          <button onClick={() => navigate(-1)} style={{ display:'flex', alignItems:'center', gap:6, marginBottom:20, background:'none', border:'none', color:'#f92c8b', cursor:'pointer', fontSize:14, fontWeight:600 }}>
+            <ArrowLeft size={18} /> Back
+          </button>
+          <img src={logo} alt="Dressora Logo" style={{ height: 52, marginBottom: 24 }} />
           <h2>Create Account</h2>
           <p className="subtitle">Join Dressora and start your fashion journey today</p>
 
@@ -109,7 +102,7 @@ export default function Register() {
             </div>
             <div style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:20, fontSize:13, color:'var(--text-secondary)' }}>
               <input type="checkbox" required style={{ marginTop:2, accentColor:'var(--pink)' }} />
-              <span>I agree to the <a href="#" style={{ color:'var(--pink)' }}>Terms of Service</a> and <a href="#" style={{ color:'var(--pink)' }}>Privacy Policy</a></span>
+              <span>I agree to the <button type="button" onClick={() => {}} style={{ color:'var(--pink)', background:'none', border:'none', cursor:'pointer' }}>Terms of Service</button> and <button type="button" onClick={() => {}} style={{ color:'var(--pink)', background:'none', border:'none', cursor:'pointer' }}>Privacy Policy</button></span>
             </div>
             <button id="register-submit" className="btn btn-primary btn-full" type="submit" disabled={loading}>
               {loading ? 'Creating Account...' : `Create ${role === 'seller' ? 'Seller' : ''} Account`}
@@ -118,6 +111,9 @@ export default function Register() {
           <p className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></p>
         </div>
       </div>
+
+      {/* Right panel - Background */}
+      <div className="auth-left" style={authLeftStyle}></div>
     </div>
   );
 }
