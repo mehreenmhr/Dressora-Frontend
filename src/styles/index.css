@@ -4,6 +4,9 @@
    Colors: Pink #E491C9 → Purple #982598 gradient
 ============================================================ */
 
+/* --- Google Fonts Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Arima+Madurai:wght@300;400;500;700;800;900&family=Mulish:wght@300;400;500;600;700;800;900&display=swap');
+
 /* --- CSS Variables / Design Tokens --- */
 :root {
   --gradient: linear-gradient(90deg, #E491C9 0%, #982598 100%);
@@ -36,8 +39,8 @@
   --radius-lg: 20px;
   --radius-pill: 100px;
 
-  --font-body: 'Inter', sans-serif;
-  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Mulish', sans-serif;
+  --font-heading: 'Arima Madurai', cursive;
 
   --nav-height: 72px;
   --container: 1200px;

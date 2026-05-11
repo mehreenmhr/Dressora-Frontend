@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, DollarSign, Star, Plus, Edit2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Package, ShoppingBag, DollarSign, Star, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { products, orders, orderItems, getProductById, formatPrice, categories } from '../../data/mockData';
 import '../../styles/pages.css';
@@ -24,8 +24,8 @@ function SellerSidebar({ active }) {
         ))}
       </div>
       <div className="dash-nav-section" style={{ marginTop:'auto', borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:12 }}>
-        <button className="dash-nav-link" style={{ border:'none', background:'none', width:'100%', cursor:'pointer', color:'#f87171' }} onClick={() => { logout(); navigate('/'); }}>
-          Sign Out
+        <button className="btn btn-outline btn-sm dash-nav-link" onClick={() => { logout(); navigate('/'); }}>
+          <LogOut size={14} /> Sign Out
         </button>
       </div>
     </div>
@@ -50,10 +50,10 @@ export function SellerDashboard() {
         </div>
         <div className="stats-grid">
           {[
-            { icon: Package,    label:'Total Products',  value: myProducts.length,         change:'+2 this month', color:'#f92c8b' },
-            { icon: ShoppingBag,label:'Total Orders',    value: myOrderItems.length,        change:'+5 this week',  color:'#b02cd6' },
-            { icon: DollarSign, label:'Total Revenue',   value: formatPrice(revenue),       change:'+12% vs last',  color:'#1a8a4a' },
-            { icon: Star,       label:'Average Rating',  value: avgRating + '★',            change:'Based on reviews', color:'#f9b02c' },
+            { icon: Package,    label:'Total Products',  value: myProducts.length,         change:'+2 this month' },
+            { icon: ShoppingBag,label:'Total Orders',    value: myOrderItems.length,        change:'+5 this week' },
+            { icon: DollarSign, label:'Total Revenue',   value: formatPrice(revenue),       change:'+12% vs last' },
+            { icon: Star,       label:'Average Rating',  value: avgRating + '★',            change:'Based on reviews' },
           ].map(({ icon:Icon, label, value, change }) => (
             <div key={label} className="stat-card">
               <div className="stat-icon"><Icon size={20} /></div>
@@ -68,11 +68,27 @@ export function SellerDashboard() {
             <Link to="/seller/products" className="btn btn-primary btn-sm">View All</Link>
           </div>
           <table>
-            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
+            <thead><tr><th>Product</th><th>Image</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
             <tbody>
               {myProducts.slice(0,5).map(p => (
                 <tr key={p.productID}>
                   <td style={{ fontWeight:600 }}>{p.productName}</td>
+                  <td>
+                    <img 
+                      src={p.image} 
+                      alt={p.productName}
+                      style={{ 
+                        width: 40, 
+                        height: 40, 
+                        objectFit: 'cover',
+                        borderRadius: 6
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f5f5f5;border-radius:6px;font-size:10px;color:#999;">📷</div>';
+                      }}
+                    />
+                  </td>
                   <td>{categories.find(c=>c.categoryID===p.categoryID)?.categoryName}</td>
                   <td>{formatPrice(p.basePrice)}</td>
                   <td><span className={`badge ${p.stockQuantity < 10 ? 'badge-warning' : 'badge-success'}`}>{p.stockQuantity}</span></td>
@@ -102,9 +118,9 @@ export function SellerProducts() {
   const handleSave = (e) => {
     e.preventDefault();
     if (editProduct) {
-      setProductList(prev => prev.map(p => p.productID===editProduct.productID ? {...p,...form, basePrice:Number(form.basePrice), stockQuantity:Number(form.stockQuantity)} : p));
+      setProductList(prev => prev.map(p => p.productID===editProduct.productID ? {...p,...form, basePrice:Number(form.basePrice), stockQuantity:Number(form.stockQuantity), image: form.image || editProduct.image} : p));
     } else {
-      setProductList(prev => [...prev, { ...form, productID: Date.now(), sellerID, basePrice:Number(form.basePrice), stockQuantity:Number(form.stockQuantity), rating:0, reviewCount:0, discount:0, createdAt:new Date().toISOString().split('T')[0] }]);
+      setProductList(prev => [...prev, { ...form, productID: Date.now(), sellerID, basePrice:Number(form.basePrice), stockQuantity:Number(form.stockQuantity), rating:0, reviewCount:0, discount:0, createdAt:new Date().toISOString().split('T')[0], image: form.image || null }]);
     }
     setShowModal(false);
   };
@@ -123,10 +139,26 @@ export function SellerProducts() {
 
         <div className="data-table">
           <table>
-            <thead><tr><th>Product Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Image</th><th>Product Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {productList.map(p => (
                 <tr key={p.productID}>
+                  <td>
+                    <img 
+                      src={p.image} 
+                      alt={p.productName}
+                      style={{ 
+                        width: 50, 
+                        height: 50, 
+                        objectFit: 'cover',
+                        borderRadius: 6
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:50px;height:50px;background:#f5f5f5;border-radius:6px;font-size:10px;color:#999;">📷</div>';
+                      }}
+                    />
+                  </td>
                   <td><div style={{ fontWeight:600 }}>{p.productName}</div><div style={{ fontSize:12, color:'var(--text-muted)' }}>{p.discount>0?`-${p.discount}% off`:''}</div></td>
                   <td><code style={{ fontSize:12, background:'var(--bg-light)', padding:'2px 6px', borderRadius:4 }}>{p.sku}</code></td>
                   <td>{categories.find(c=>c.categoryID===p.categoryID)?.categoryName}</td>
@@ -156,6 +188,44 @@ export function SellerProducts() {
               </div>
               <form onSubmit={handleSave}>
                 <div className="modal-body">
+                  <div className="form-group">
+                    <label className="form-label">Product Image</label>
+                    <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:8 }}>
+                      {editProduct && editProduct.image && (
+                        <img 
+                          src={editProduct.image} 
+                          alt={editProduct.productName}
+                          style={{ 
+                            width: 80, 
+                            height: 80, 
+                            objectFit: 'cover',
+                            borderRadius: 8,
+                            border: '2px solid var(--bg-light)'
+                          }}
+                        />
+                      )}
+                      <div style={{ flex:1 }}>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={e => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                setForm(f => ({...f, image: event.target.result}));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          style={{ fontSize: 12 }}
+                        />
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                          {editProduct ? 'Change current image' : 'Upload product image'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div className="form-group"><label className="form-label">Product Name</label><input className="form-control" value={form.productName} onChange={e=>setForm(f=>({...f,productName:e.target.value}))} required /></div>
                   <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} /></div>
                   <div className="form-row">

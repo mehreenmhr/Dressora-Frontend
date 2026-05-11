@@ -65,7 +65,20 @@ export default function Cart() {
                 <div key={item.productID} className="cart-row">
                   <div className="cart-product">
                     <div className="cart-product-img">
-                      <div className="img-placeholder" style={{ height:'100%' }}><span style={{ fontSize:10 }}>📷</span></div>
+                      <img 
+                        src={item.product.image} 
+                        alt={item.product.productName}
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover',
+                          borderRadius: '8px'
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f5f5f5;border-radius:8px;font-size:10px;color:#999;">📷</div>';
+                        }}
+                      />
                     </div>
                     <div>
                       <Link to={`/product/${item.productID}`} className="name">{item.product.productName}</Link>

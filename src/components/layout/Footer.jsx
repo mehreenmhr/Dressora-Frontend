@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import logo from '../../assets/logo.png';
 
 export default function Footer() {
   return (
@@ -9,14 +10,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <span style={{ width: 36, height: 36, background: 'linear-gradient(90deg,#f92c8b,#b02cd6)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                <ShoppingBag size={18} />
-              </span>
-              <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.5rem', fontWeight: 700, background: 'linear-gradient(90deg,#f92c8b,#b02cd6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                Dressora
-              </span>
-            </div>
+            <img src={logo} alt="Dressora Logo" style={{ height: 56, marginBottom: 16 }} />
             <p style={{ fontSize: 14, lineHeight: 1.7, maxWidth: 280, marginBottom: 20 }}>
               Your premier destination for fashion-forward clothing, accessories, and lifestyle products. Curated with love, delivered with care.
             </p>

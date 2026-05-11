@@ -4,15 +4,17 @@ import ProductCard from '../components/ui/ProductCard';
 import { categories, featuredProducts, reviews, newArrivals } from '../data/mockData';
 import '../styles/home.css';
 
-// Import Modest category images
-import img1 from '../assests/Modest/Black and White Cut Abaya .jpeg';
-import img2 from '../assests/Modest/Black Umbrella Abaya .jpeg';
-import img3 from '../assests/Modest/Blue Open Cut Abaya .jpeg';
-import img4 from '../assests/Modest/Modest Navy Frok Abaya .jpeg';
-import img5 from '../assests/Modest/Modest Open Cut Abaya.jpeg';
-import img6 from '../assests/Modest/Pink Floral Abaya .jpeg';
+// Import Category representative images
+import modestImg from '../assets/Modest/black-white-cut-abaya.jpeg';
+import easternImg from '../assets/Eastern/cream-green-2-piece.jpeg';
+import westernImg from '../assets/Western/brownish-cord-set.webp';
+import saleImg from '../assets/Extra/Sale.png';
 
-const modestImages = [img1, img2, img3, img4, img5, img6];
+const categoryImages = {
+  1: modestImg,
+  2: easternImg,
+  3: westernImg
+};
 
 const features = [
   { icon: Truck,       title: 'Free Delivery',    sub: 'On orders over Rs. 2,000' },
@@ -82,8 +84,8 @@ export default function Home() {
             {topCategories.map((cat, index) => (
               <Link to={`/shop?category=${cat.categoryID}`} key={cat.categoryID} className="category-card">
                 <div className="category-card-img">
-                  {cat.categoryID === 1 && modestImages[index % modestImages.length] ? (
-                    <img src={modestImages[index % modestImages.length]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
+                  {categoryImages[cat.categoryID] ? (
+                    <img src={categoryImages[cat.categoryID]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
                   ) : (
                     <div className="img-placeholder" style={{ height: '100%' }}>
                       <span>{cat.icon}</span>
@@ -123,9 +125,17 @@ export default function Home() {
               <p>Use code <strong>SUMMER15</strong> at checkout for an extra 15% off</p>
             </div>
             <div className="promo-banner-actions">
-              <div className="img-placeholder" style={{ width: 200, height: 180, borderRadius: 16, marginBottom: 20 }}>
-                <span style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.1)' }}>📷 Promo Image</span>
-              </div>
+              <img 
+                src={saleImg} 
+                alt="Sale Banner"
+                style={{ 
+                  width: 200, 
+                  height: 180, 
+                  borderRadius: 16, 
+                  marginBottom: 20,
+                  objectFit: 'cover'
+                }}
+              />
               <button className="btn btn-white btn-lg" onClick={() => navigate('/shop?category=6')} style={{ display: 'block', width: '100%', justifyContent: 'center' }}>
                 Shop Sale <ArrowRight size={18} />
               </button>

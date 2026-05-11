@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, Search, User, Menu, X, ShoppingBag, LogOut, Package, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, Search, User, Menu, X, LogOut, Package, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import logo from '../../assets/logo.png';
 import '../../styles/navbar.css';
 
 export default function Navbar() {
@@ -30,8 +31,7 @@ export default function Navbar() {
         <div className="container navbar-inner">
           {/* Logo */}
           <Link to="/" className="navbar-logo">
-            <span className="logo-icon"><ShoppingBag size={18} /></span>
-            <span className="logo-text">Dressora</span>
+            <img src={logo} alt="Dressora Logo" style={{ height: 64 }} />
           </Link>
 
           {/* Desktop Links */}
@@ -87,7 +87,7 @@ export default function Navbar() {
                       <Link to="/admin" className="user-dropdown-item"><LayoutDashboard size={14} /> Admin Panel</Link>
                     </>}
                     <div className="user-dropdown-divider" />
-                    <button className="user-dropdown-item danger" onClick={handleLogout}>
+                    <button className="btn btn-outline btn-sm user-dropdown-item danger" onClick={handleLogout} style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 12px' }}>
                       <LogOut size={14} /> Sign Out
                     </button>
                   </div>

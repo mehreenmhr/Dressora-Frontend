@@ -278,8 +278,8 @@
 
 /* --- Feature Bar --- */
 .feature-bar {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  justify-content: space-between;
   gap: 24px;
   padding: 28px 0;
 }

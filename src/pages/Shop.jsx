@@ -6,10 +6,16 @@ import { products, categories } from '../data/mockData';
 import '../styles/pages.css';
 
 export default function Shop() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filtered, setFiltered]     = useState(products.filter(p => p.isActive));
   const [search, setSearch]         = useState(searchParams.get('search') || '');
   const [selectedCat, setSelectedCat] = useState(searchParams.get('category') ? Number(searchParams.get('category')) : null);
+
+  // Update state when URL parameters change
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+    setSelectedCat(searchParams.get('category') ? Number(searchParams.get('category')) : null);
+  }, [searchParams]);
   const [priceMin, setPriceMin]     = useState('');
   const [priceMax, setPriceMax]     = useState('');
   const [sortBy, setSortBy]         = useState('default');

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Package, ShoppingBag, Tag, FolderTree, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Users, Package, ShoppingBag, Tag, FolderTree, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { users, products, orders, coupons, categories, formatPrice, customers, sellers } from '../../data/mockData';
 import '../../styles/pages.css';
@@ -29,7 +29,9 @@ function AdminSidebar({ active }) {
         </div>
       ))}
       <div className="dash-nav-section" style={{ marginTop:24, borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:12 }}>
-        <button className="dash-nav-link" style={{ border:'none', background:'none', width:'100%', cursor:'pointer', color:'#f87171' }} onClick={()=>{logout();navigate('/');}}>Sign Out</button>
+        <button className="btn btn-outline btn-sm dash-nav-link" onClick={()=>{logout();navigate('/');}}>
+          <LogOut size={14} /> Sign Out
+        </button>
       </div>
     </div>
   );
@@ -132,10 +134,26 @@ export function AdminProducts() {
         <div className="dashboard-header"><h1>All Products</h1><p>Monitor and manage all product listings</p></div>
         <div className="data-table">
           <table>
-            <thead><tr><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
+            <thead><tr><th>Image</th><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
             <tbody>
               {prodList.map(p => (
                 <tr key={p.productID}>
+                  <td>
+                    <img 
+                      src={p.image} 
+                      alt={p.productName}
+                      style={{ 
+                        width: 50, 
+                        height: 50, 
+                        objectFit: 'cover',
+                        borderRadius: 6
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:50px;height:50px;background:#f5f5f5;border-radius:6px;font-size:10px;color:#999;">📷</div>';
+                      }}
+                    />
+                  </td>
                   <td><div style={{ fontWeight:600 }}>{p.productName}</div><div style={{ fontSize:11, color:'var(--text-muted)' }}>{p.sku}</div></td>
                   <td>{sellers.find(s=>s.sellerID===p.sellerID)?.storeName}</td>
                   <td>{categories.find(c=>c.categoryID===p.categoryID)?.categoryName}</td>

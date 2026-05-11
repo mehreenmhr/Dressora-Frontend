@@ -1,8 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, ShoppingBag } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/pages.css';
+
+// Import login background image and logo
+import loginBg2 from '../../assets/Extra/login-bg-2.png';
+import logo from '../../assets/logo.png';
+
+const authLeftStyle = {
+  backgroundImage: `url(${loginBg2})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center 5%',
+  backgroundRepeat: 'no-repeat'
+};
 
 export default function Login() {
   const { login } = useAuth();
@@ -40,32 +51,15 @@ export default function Login() {
   return (
     <div className="auth-page">
       {/* Left panel */}
-      <div className="auth-left">
-        <div className="auth-brand">
-          <div className="logo">Dressora</div>
-          <p>Welcome back! Sign in to continue your fashion journey with thousands of curated products.</p>
-          <div className="img-placeholder" style={{ width: 280, height: 300, borderRadius: 20, margin: '32px auto' }}>
-            <span style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.05)' }}>📷 Fashion Image</span>
-          </div>
-          <div style={{ marginTop: 16 }}>
-            {[{ icon: '🛍️', text: 'Shop 10,000+ products' }, { icon: '⚡', text: 'Fast delivery across Pakistan' }, { icon: '🔒', text: '100% secure payments' }].map(item => (
-              <div key={item.text} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, fontSize:14, color:'rgba(255,255,255,0.7)' }}>
-                <span>{item.icon}</span> {item.text}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="auth-left" style={authLeftStyle}></div>
 
       {/* Right panel */}
       <div className="auth-right">
         <div className="auth-form-wrap">
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:28 }}>
-            <span style={{ width:36, height:36, background:'linear-gradient(90deg,#f92c8b,#b02cd6)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', color:'white' }}>
-              <ShoppingBag size={18} />
-            </span>
-            <span style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.3rem', fontWeight:700, background:'linear-gradient(90deg,#f92c8b,#b02cd6)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Dressora</span>
-          </div>
+          <button onClick={() => navigate(-1)} style={{ display:'flex', alignItems:'center', gap:6, marginBottom:20, background:'none', border:'none', color:'#f92c8b', cursor:'pointer', fontSize:14, fontWeight:600 }}>
+            <ArrowLeft size={18} /> Back
+          </button>
+          <img src={logo} alt="Dressora Logo" style={{ height: 52, marginBottom: 28 }} />
           <h2>Welcome Back</h2>
           <p className="subtitle">Sign in to your account to continue shopping</p>
 
@@ -73,7 +67,7 @@ export default function Login() {
 
           {/* Demo logins */}
           <div style={{ marginBottom:20 }}>
-            <p style={{ fontSize:12, color:'var(--text-muted)', marginBottom:8, fontWeight:600, textTransform:'uppercase', letterSpacing:1 }}>Quick Demo Login:</p>
+            <p style={{ fontSize:12, color:'#666666', marginBottom:8, fontWeight:600, textTransform:'uppercase', letterSpacing:1 }}>Quick Demo Login:</p>
             <div style={{ display:'flex', gap:6 }}>
               {demoCredentials.map(c => (
                 <button key={c.label} className="btn btn-ghost btn-sm" onClick={() => fillDemo(c)} style={{ flex:1, fontSize:12 }}>{c.label}</button>
@@ -88,11 +82,11 @@ export default function Login() {
             </div>
             <div className="form-group">
               <label className="form-label" style={{ display:'flex', justifyContent:'space-between' }}>
-                Password <button type="button" onClick={() => {}} style={{ fontSize:12, color:'var(--pink)', fontWeight:500, background:'none', border:'none', cursor:'pointer' }}>Forgot password?</button>
+                Password <button type="button" onClick={() => {}} style={{ fontSize:12, color:'#f92c8b', fontWeight:500, background:'none', border:'none', cursor:'pointer' }}>Forgot password?</button>
               </label>
               <div style={{ position:'relative' }}>
                 <input id="login-password" className="form-control" type={showPw ? 'text' : 'password'} placeholder="••••••••" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required style={{ paddingRight:44 }} />
-                <button type="button" onClick={() => setShowPw(!showPw)} style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer' }}>
+                <button type="button" onClick={() => setShowPw(!showPw)} style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'#666666', cursor:'pointer' }}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
