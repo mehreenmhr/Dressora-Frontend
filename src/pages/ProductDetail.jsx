@@ -1,19 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Share2, CheckCircle, Truck, RefreshCw, Shield } from 'lucide-react';
-import { getProductById, getReviewsByProduct, formatPrice, getDiscount, categories } from '../data/mockData';
+import { ShoppingCart, CheckCircle, Truck, RefreshCw, Shield } from 'lucide-react';
+import { getReviewsByProduct, formatPrice, getDiscount } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ui/ProductCard';
-import { products } from '../data/mockData';
+import { fetchProductById, fetchProducts, fetchCategories } from '../services/api';
 import '../styles/pages.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const product = getProductById(Number(id));
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [category, setCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const p = await fetchProductById(id);
+        setProduct(p);
+
+        const [prodsData, catsData] = await Promise.all([
+          fetchProducts(),
+          fetchCategories()
+        ]);
+        setCategory(catsData.find(c => c.categoryID === p.categoryID));
+        setRelated(prodsData.filter(rp => rp.categoryID === p.categoryID && rp.productID !== p.productID && rp.isActive).slice(0, 4));
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  if (loading) return <div style={{textAlign: 'center', padding: '100px', fontSize: '1.2rem'}}>Loading Product...</div>;
 
   if (!product) return (
     <div className="empty-state container" style={{ paddingTop: 80 }}>
@@ -23,10 +50,8 @@ export default function ProductDetail() {
     </div>
   );
 
-  const reviews = getReviewsByProduct(product.productID);
+  const reviews = getReviewsByProduct(product.mockId || product.productID);
   const discountedPrice = getDiscount(product);
-  const category = categories.find(c => c.categoryID === product.categoryID);
-  const related = products.filter(p => p.categoryID === product.categoryID && p.productID !== product.productID && p.isActive).slice(0, 4);
 
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) addToCart(product.productID);
@@ -152,7 +177,7 @@ export default function ProductDetail() {
           <div style={{ marginTop: 64 }}>
             <h2 style={{ marginBottom: 28 }}>You May Also Like</h2>
             <div className="products-grid">
-              {related.map(p => <ProductCard key={p.productID} product={p} />)}
+              {related.map(p => <ProductCard key={p.productID || p._id} product={p} />)}
             </div>
           </div>
         )}

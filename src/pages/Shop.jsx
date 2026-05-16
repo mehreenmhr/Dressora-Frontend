@@ -2,19 +2,41 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
-import { products, categories } from '../data/mockData';
+import { fetchProducts, fetchCategories } from '../services/api';
 import '../styles/pages.css';
 
 export default function Shop() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [filtered, setFiltered]     = useState(products.filter(p => p.isActive));
+  const [searchParams] = useSearchParams();
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filtered, setFiltered]     = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch]         = useState(searchParams.get('search') || '');
-  const [selectedCat, setSelectedCat] = useState(searchParams.get('category') ? Number(searchParams.get('category')) : null);
+  const [selectedCat, setSelectedCat] = useState(searchParams.get('category') || null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [catsData, prodsData] = await Promise.all([
+          fetchCategories(),
+          fetchProducts()
+        ]);
+        setCategories(catsData);
+        setProducts(prodsData);
+        setFiltered(prodsData.filter(p => p.isActive));
+      } catch (error) {
+        console.error("Error loading shop data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   // Update state when URL parameters change
   useEffect(() => {
     setSearch(searchParams.get('search') || '');
-    setSelectedCat(searchParams.get('category') ? Number(searchParams.get('category')) : null);
+    setSelectedCat(searchParams.get('category') || null);
   }, [searchParams]);
   const [priceMin, setPriceMin]     = useState('');
   const [priceMax, setPriceMax]     = useState('');
@@ -44,7 +66,7 @@ export default function Shop() {
     if (sortBy === 'rating')     result = [...result].sort((a,b) => b.rating - a.rating);
     if (sortBy === 'newest')     result = [...result].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     setFiltered(result);
-  }, [search, selectedCat, priceMin, priceMax, sortBy]);
+  }, [search, selectedCat, priceMin, priceMax, sortBy, products, categories]);
 
   const topCategories = categories.filter(c => !c.parentCategoryID);
   const clearFilters = () => { setSearch(''); setSelectedCat(null); setPriceMin(''); setPriceMax(''); setSortBy('default'); };
@@ -107,7 +129,11 @@ export default function Shop() {
       </div>
 
       <div className="container section">
-        {/* Search bar */}
+        {loading ? (
+          <div style={{textAlign: 'center', padding: '100px', fontSize: '1.2rem'}}>Loading Products...</div>
+        ) : (
+          <>
+            {/* Search bar */}
         <div className="shop-search">
           <input
             className="form-control"
@@ -152,11 +178,13 @@ export default function Shop() {
               </div>
             ) : (
               <div className="products-grid">
-                {filtered.map(p => <ProductCard key={p.productID} product={p} />)}
+                {filtered.map(p => <ProductCard key={p.productID || p._id} product={p} />)}
               </div>
             )}
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

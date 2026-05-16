@@ -2,33 +2,30 @@
 // DRESSORA — Mock Data (matches full DB schema)
 // ============================================================
 
-// Import Modest category example images
-// Import Modest category example images
-import img1 from '../assets/Modest/black-white-cut-abaya.jpeg';
-import img2 from '../assets/Modest/black-umbrella-abaya.jpeg';
-import img3 from '../assets/Modest/blue-open-cut-abaya.jpeg';
-import img4 from '../assets/Modest/modest-navy-frock-abaya.jpeg';
-import img5 from '../assets/Modest/modest-open-cut-abaya.jpeg';
-import img6 from '../assets/Modest/pink-floral-abaya.jpeg';
+// Representative images (using public assets)
+const img1 = '/assets/Modest/black-white-cut-abaya.jpeg';
+const img2 = '/assets/Modest/black-umbrella-abaya.jpeg';
+const img3 = '/assets/Modest/blue-open-cut-abaya.jpeg';
+const img4 = '/assets/Modest/modest-navy-frock-abaya.jpeg';
+const img5 = '/assets/Modest/modest-open-cut-abaya.jpeg';
+const img6 = '/assets/Modest/pink-floral-abaya.jpeg';
 
-// Import Eastern category images
-import eastern1 from '../assets/Eastern/cream-green-2-piece.jpeg';
-import eastern2 from '../assets/Eastern/cream-green-garden.jpeg';
-import eastern3 from '../assets/Eastern/grey-embroidery-3-piece.jpeg';
-import eastern4 from '../assets/Eastern/lilac-skin-shirt.jpeg';
-import eastern5 from '../assets/Eastern/orange-pretty-3-piece.jpeg';
-import eastern6 from '../assets/Eastern/pastel-green.jpeg';
-import eastern7 from '../assets/Eastern/purplish-pink-embroider.jpeg';
-import eastern8 from '../assets/Eastern/sky-embroidery-dream.jpeg';
-import eastern9 from '../assets/Eastern/white-cotton-fairy.jpeg';
+const eastern1 = '/assets/Eastern/cream-green-2-piece.jpeg';
+const eastern2 = '/assets/Eastern/cream-green-garden.jpeg';
+const eastern3 = '/assets/Eastern/grey-embroidery-3-piece.jpeg';
+const eastern4 = '/assets/Eastern/lilac-skin-shirt.jpeg';
+const eastern5 = '/assets/Eastern/orange-pretty-3-piece.jpeg';
+const eastern6 = '/assets/Eastern/pastel-green.jpeg';
+const eastern7 = '/assets/Eastern/purplish-pink-embroider.jpeg';
+const eastern8 = '/assets/Eastern/sky-embroidery-dream.jpeg';
+const eastern9 = '/assets/Eastern/white-cotton-fairy.jpeg';
 
-// Import Western category images
-import western1 from '../assets/Western/Blackish Green Pant Shirt.webp';
-import western2 from '../assets/Western/brownish-cord-set.webp';
-import western3 from '../assets/Western/mehroon-tshirt-pants.webp';
-import western4 from '../assets/Western/mini-black-frock-shirt.jpeg';
-import western5 from '../assets/Western/Garden Tree Set.avif';
-import western6 from '../assets/Western/Lilac Spring Combo.webp';
+const western1 = '/assets/Western/Blackish Green Pant Shirt.webp';
+const western2 = '/assets/Western/brownish-cord-set.webp';
+const western3 = '/assets/Western/mehroon-tshirt-pants.webp';
+const western4 = '/assets/Western/mini-black-frock-shirt.jpeg';
+const western5 = '/assets/Western/Garden Tree Set.avif';
+const western6 = '/assets/Western/Lilac Spring Combo.webp';
 
 export const categories = [
   { categoryID: 1, parentCategoryID: null, categoryName: "Modest", description: "Modest fashion styles", icon: "👗" },
@@ -45,8 +42,8 @@ export const users = [
 ];
 
 export const customers = [
-  { customerID: 1, userID: 1, firstName: "Fatima", lastName: "Khan", dateOfBirth: "1995-06-15", loyaltyPoints: 450 },
-  { customerID: 2, userID: 4, firstName: "Sara", lastName: "Ali", dateOfBirth: "1998-02-20", loyaltyPoints: 120 },
+  { customerID: 1, userID: 1, firstName: "Fatima", lastName: "Ali", dateOfBirth: "1995-06-15", loyaltyPoints: 450 },
+  { customerID: 2, userID: 4, firstName: "Sara", lastName: "Khan", dateOfBirth: "1998-02-20", loyaltyPoints: 120 },
   { customerID: 3, userID: 5, firstName: "Ahmed", lastName: "Raza", dateOfBirth: "1990-11-05", loyaltyPoints: 0 },
 ];
 

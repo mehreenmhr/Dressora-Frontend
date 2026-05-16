@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/pages.css';
 
 // Import login background image and logo
-import loginBg2 from '../../assets/Extra/login-bg-2.png';
-import logo from '../../assets/logo.png';
+const loginBg2 = '/assets/Extra/login-bg-2.png';
+const logo = '/assets/logo.png';
 
 const authLeftStyle = {
   backgroundImage: `url(${loginBg2})`,
@@ -24,17 +24,16 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const demoCredentials = [
-    { label: 'Customer', email: 'customer@dressora.com', password: 'customer123' },
-    { label: 'Seller',   email: 'seller@dressora.com',   password: 'seller123' },
-    { label: 'Admin',    email: 'admin@dressora.com',     password: 'admin123' },
+    { label: 'Customer', email: 'customer@dressora.com', password: 'password123' },
+    { label: 'Seller',   email: 'seller@dressora.com',   password: 'password123' },
+    { label: 'Admin',    email: 'admin@dressora.com',     password: 'password123' },
   ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    const result = login(form.email, form.password);
+    const result = await login(form.email, form.password);
     setLoading(false);
     if (result.success) {
       // Redirect based on role
