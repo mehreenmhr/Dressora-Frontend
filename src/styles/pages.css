@@ -920,7 +920,7 @@
   background: white;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .data-table-header {

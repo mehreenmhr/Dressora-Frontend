@@ -1,19 +1,21 @@
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Truck, RefreshCw, CreditCard, Headphones, Shield, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
-import { categories, featuredProducts, reviews, newArrivals } from '../data/mockData';
+import { fetchProducts, fetchCategories } from '../services/api';
+import { reviews } from '../data/mockData';
 import '../styles/home.css';
 
 // Import Category representative images
-import modestImg from '../assets/Modest/black-white-cut-abaya.jpeg';
-import easternImg from '../assets/Eastern/cream-green-2-piece.jpeg';
-import westernImg from '../assets/Western/brownish-cord-set.webp';
-import saleImg from '../assets/Extra/Sale.png';
+const modestImg = '/assets/Modest/black-white-cut-abaya.jpeg';
+const easternImg = '/assets/Eastern/cream-green-2-piece.jpeg';
+const westernImg = '/assets/Western/brownish-cord-set.webp';
+const saleImg = '/assets/Extra/Sale.png';
 
 const categoryImages = {
-  1: modestImg,
-  2: easternImg,
-  3: westernImg
+  'Modest': modestImg,
+  'Eastern': easternImg,
+  'Western': westernImg
 };
 
 const features = [
@@ -26,13 +28,41 @@ const features = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [catsData, prodsData] = await Promise.all([
+          fetchCategories(),
+          fetchProducts()
+        ]);
+        setCategories(catsData);
+        
+        const activeProducts = prodsData.filter(p => p.isActive);
+        setFeaturedProducts(activeProducts.slice(0, 8));
+        setNewArrivals(activeProducts.slice(-4));
+      } catch (error) {
+        console.error("Error loading home data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
   const topCategories = categories.filter(c => !c.parentCategoryID);
+
+  if (loading) return <div style={{textAlign: 'center', padding: '100px', fontSize: '1.2rem'}}>Loading Dressora...</div>;
 
   return (
     <main>
       {/* ── Hero ── */}
       <section className="hero">
-        <div className="hero-bg" />
+        <div className="hero-bg" style={{ backgroundImage: "url('/assets/hero-bg.png')" }} />
         <div className="hero-overlay" />
         <div className="container hero-content">
           <div className="hero-tag">✨ New Season Collection 2026</div>
@@ -82,17 +112,17 @@ export default function Home() {
           </div>
           <div className="category-grid">
             {topCategories.map((cat, index) => (
-              <Link to={`/shop?category=${cat.categoryID}`} key={cat.categoryID} className="category-card">
+              <Link to={`/shop?category=${cat._id}`} key={cat._id} className="category-card">
                 <div className="category-card-img">
-                  {categoryImages[cat.categoryID] ? (
-                    <img src={categoryImages[cat.categoryID]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
+                  {categoryImages[cat.name] ? (
+                    <img src={categoryImages[cat.name]} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
                   ) : (
                     <div className="img-placeholder" style={{ height: '100%' }}>
                       <span>{cat.icon}</span>
                     </div>
                   )}
                 </div>
-                <div className="name">{cat.categoryName}</div>
+                <div className="name">{cat.name}</div>
                 <div className="count">View All</div>
               </Link>
             ))}
@@ -111,7 +141,7 @@ export default function Home() {
             <Link to="/shop" className="btn btn-outline btn-sm">View All <ChevronRight size={14} /></Link>
           </div>
           <div className="products-grid">
-            {featuredProducts.map(p => <ProductCard key={p.productID} product={p} />)}
+            {featuredProducts.map(p => <ProductCard key={p._id || p.productID} product={p} />)}
           </div>
         </div>
       </section>
@@ -155,7 +185,7 @@ export default function Home() {
             <Link to="/shop" className="btn btn-outline btn-sm">See More <ChevronRight size={14} /></Link>
           </div>
           <div className="products-grid">
-            {newArrivals.map(p => <ProductCard key={p.productID} product={p} />)}
+            {newArrivals.map(p => <ProductCard key={p._id || p.productID} product={p} />)}
           </div>
         </div>
       </section>

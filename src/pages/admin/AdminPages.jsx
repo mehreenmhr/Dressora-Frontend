@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Package, ShoppingBag, Tag, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { users, products, orders, coupons, formatPrice, customers, sellers } from '../../data/mockData';
+import { fetchProducts, fetchCategories, fetchUsers } from '../../services/api';
+import { formatPrice, orders, customers, coupons } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function AdminSidebar({ active }) {
@@ -37,7 +38,22 @@ function AdminSidebar({ active }) {
 }
 
 export function AdminDashboard() {
-  const revenue = orders.reduce((s,o)=>s+o.finalAmount,0);
+  const [counts, setCounts] = useState({ users: 0, products: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const [u, p] = await Promise.all([fetchUsers(), fetchProducts()]);
+        setCounts({ users: u.length, products: p.length });
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    };
+    loadStats();
+  }, []);
+
+  if (loading) return <div className="dashboard-layout"><AdminSidebar active="/admin" /><main className="dashboard-main">Loading stats...</main></div>;
+
   return (
     <div className="dashboard-layout">
       <AdminSidebar active="/admin" />
@@ -45,10 +61,10 @@ export function AdminDashboard() {
         <div className="dashboard-header"><h1>Admin Dashboard</h1><p>System overview — {new Date().toLocaleDateString('en-PK',{dateStyle:'full'})}</p></div>
         <div className="stats-grid">
           {[
-            { icon:Users,      label:'Total Users',    value: users.length,            change:'+3 this week' },
-            { icon:Package,    label:'Total Products', value: products.length,          change:'+5 this month' },
-            { icon:ShoppingBag,label:'Total Orders',   value: orders.length,            change:'+12 this week' },
-            { icon:BarChart2,  label:'Total Revenue',  value: formatPrice(revenue),     change:'+18% vs last month' },
+            { icon:Users,      label:'Total Users',    value: counts.users,            change:'Live from DB' },
+            { icon:Package,    label:'Total Products', value: counts.products,         change:'Live from DB' },
+            { icon:ShoppingBag,label:'Total Orders',   value: 0,                       change:'Coming soon' },
+            { icon:BarChart2,  label:'Total Revenue',  value: 'Rs. 0',                 change:'Coming soon' },
           ].map(({ icon:Icon, label, value, change }) => (
             <div key={label} className="stat-card">
               <div className="stat-icon"><Icon size={20}/></div>
@@ -56,36 +72,32 @@ export function AdminDashboard() {
             </div>
           ))}
         </div>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
-          <div className="data-table">
-            <div className="data-table-header"><h3>Recent Orders</h3><Link to="/admin/orders" className="btn btn-ghost btn-sm">View All</Link></div>
-            <table><thead><tr><th>Order</th><th>Amount</th><th>Status</th></tr></thead>
-              <tbody>{orders.map(o=>(
-                <tr key={o.orderID}><td>#{o.orderID}</td><td>{formatPrice(o.finalAmount)}</td><td><span className={`badge ${o.orderStatus==='delivered'?'badge-success':o.orderStatus==='shipped'?'badge-primary':'badge-warning'}`}>{o.orderStatus}</span></td></tr>
-              ))}</tbody>
-            </table>
-          </div>
-          <div className="data-table">
-            <div className="data-table-header"><h3>Active Coupons</h3><Link to="/admin/coupons" className="btn btn-ghost btn-sm">View All</Link></div>
-            <table><thead><tr><th>Code</th><th>Discount</th><th>Used</th></tr></thead>
-              <tbody>{coupons.map(c=>(
-                <tr key={c.couponID}><td><code style={{ fontSize:12, background:'var(--bg-light)', padding:'2px 6px', borderRadius:4 }}>{c.couponCode}</code></td>
-                  <td>{c.discountType==='percentage'?`${c.discountValue}%`:`Rs.${c.discountValue}`}</td>
-                  <td>{c.timesUsed}/{c.usageLimit}</td>
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </div>
       </main>
     </div>
   );
 }
 
 export function AdminUsers() {
-  const [userList, setUserList] = useState(users);
-  const toggleActive = (id) => setUserList(prev => prev.map(u => u.userID===id ? {...u, isActive:!u.isActive} : u));
+  const [userList, setUserList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const data = await fetchUsers();
+        setUserList(data);
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    };
+    loadUsers();
+  }, []);
+
+  const toggleActive = (id) => setUserList(prev => prev.map(u => u._id===id ? {...u, isActive:!u.isActive} : u));
   const getRoleBadge = (t) => t==='admin'?'badge-danger':t==='seller'?'badge-primary':'badge-success';
+
+  if (loading) return <div className="dashboard-layout"><AdminSidebar active="/admin/users" /><main className="dashboard-main">Loading users...</main></div>;
 
   return (
     <div className="dashboard-layout">
@@ -100,31 +112,70 @@ export function AdminUsers() {
             <thead><tr><th>ID</th><th>Email</th><th>Phone</th><th>Role</th><th>Registered</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               {userList.map(u => (
-                <tr key={u.userID}>
-                  <td>#{u.userID}</td>
+                <tr key={u._id}>
+                  <td>#{u._id.slice(-6)}</td>
                   <td style={{ fontWeight:500 }}>{u.email}</td>
                   <td>{u.phoneNumber}</td>
                   <td><span className={`badge ${getRoleBadge(u.userType)}`}>{u.userType}</span></td>
-                  <td>{new Date(u.dateRegistered).toLocaleDateString('en-PK',{dateStyle:'short'})}</td>
+                  <td>{new Date(u.createdAt).toLocaleDateString('en-PK',{dateStyle:'short'})}</td>
                   <td>
-                    <button onClick={()=>toggleActive(u.userID)} style={{ background:'none', border:'none', cursor:'pointer', color: u.isActive?'#1a8a4a':'var(--text-muted)' }}>
+                    <button onClick={()=>toggleActive(u._id)} style={{ background:'none', border:'none', cursor:'pointer', color: u.isActive?'#1a8a4a':'var(--text-muted)' }}>
                       {u.isActive ? <ToggleRight size={22}/> : <ToggleLeft size={22}/>}
                     </button>
                   </td>
-                  <td><button className="table-action-btn"><Edit2 size={12}/> View</button></td>
+                  <td><button className="table-action-btn" onClick={() => { setSelectedUser(u); setShowUserModal(true); }}><Edit2 size={12}/> View</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {showUserModal && selectedUser && (
+          <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowUserModal(false)}>
+            <div className="modal">
+              <div className="modal-header">
+                <h3>User Details: {selectedUser.firstName} {selectedUser.lastName}</h3>
+                <button className="modal-close" onClick={()=>setShowUserModal(false)}>✕</button>
+              </div>
+              <div className="modal-body">
+                <div style={{ display:'grid', gap:16 }}>
+                  <div><label className="form-label" style={{ marginBottom:4 }}>Full Name</label><div style={{ fontWeight:600 }}>{selectedUser.firstName} {selectedUser.lastName}</div></div>
+                  <div><label className="form-label" style={{ marginBottom:4 }}>Email Address</label><div style={{ fontWeight:600 }}>{selectedUser.email}</div></div>
+                  <div><label className="form-label" style={{ marginBottom:4 }}>Phone Number</label><div style={{ fontWeight:600 }}>{selectedUser.phoneNumber}</div></div>
+                  <div><label className="form-label" style={{ marginBottom:4 }}>Role</label><div><span className={`badge ${getRoleBadge(selectedUser.userType)}`}>{selectedUser.userType}</span></div></div>
+                  <div><label className="form-label" style={{ marginBottom:4 }}>Registration Date</label><div style={{ color:'var(--text-muted)' }}>{new Date(selectedUser.createdAt).toLocaleString('en-PK')}</div></div>
+                  <div><label className="form-label" style={{ marginBottom:4 }}>Account Status</label><div style={{ color: selectedUser.isActive ? '#1a8a4a' : '#c0143c', fontWeight:700 }}>{selectedUser.isActive ? 'Active' : 'Inactive'}</div></div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-primary btn-sm" onClick={()=>setShowUserModal(false)}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
 }
 
 export function AdminProducts() {
-  const [prodList, setProdList] = useState(products);
+  const [prodList, setProdList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setProdList(data);
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    };
+    loadProducts();
+  }, []);
+
   const toggleActive = (id) => setProdList(prev => prev.map(p => p.productID===id ? {...p, isActive:!p.isActive} : p));
+
+  if (loading) return <div className="dashboard-layout"><AdminSidebar active="/admin/products" /><main className="dashboard-main">Loading products...</main></div>;
 
   return (
     <div className="dashboard-layout">
@@ -133,7 +184,7 @@ export function AdminProducts() {
         <div className="dashboard-header"><h1>All Products</h1><p>Monitor and manage all product listings</p></div>
         <div className="data-table">
           <table>
-            <thead><tr><th>Image</th><th>Product</th><th>Seller</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
+            <thead><tr><th>Image</th><th>Product</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
             <tbody>
               {prodList.map(p => (
                 <tr key={p.productID}>
@@ -149,11 +200,10 @@ export function AdminProducts() {
                       }}
                     />
                   </td>
-                  <td>{sellers.find(s=>s.sellerID===p.sellerID)?.storeName}</td>
+                  <td style={{ fontWeight:600 }}>{p.productName}</td>
                   <td>{formatPrice(p.basePrice)}</td>
                   <td><span className={`badge ${p.stockQuantity===0?'badge-danger':p.stockQuantity<10?'badge-warning':'badge-success'}`}>{p.stockQuantity}</span></td>
                   <td><button onClick={()=>toggleActive(p.productID)} style={{ background:'none', border:'none', cursor:'pointer', color:p.isActive?'#1a8a4a':'var(--text-muted)' }}>{p.isActive?<ToggleRight size={22}/>:<ToggleLeft size={22}/>}</button></td>
-                  <td><div style={{ display:'flex', alignItems:'center', gap:6 }}><Star size={14} fill='gold' color='gold'/> {p.rating}</div></td>
                 </tr>
               ))}
             </tbody>

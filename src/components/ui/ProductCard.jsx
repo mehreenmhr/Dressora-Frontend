@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Heart, Eye, ShoppingCart } from 'lucide-react';
+import { Eye, ShoppingCart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { formatPrice, getDiscount, categories } from '../../data/mockData';
+import { Link } from 'react-router-dom';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -31,7 +31,7 @@ export default function ProductCard({ product }) {
         </div>
       </Link>
       <div className="product-card-body">
-        <div className="category">{category?.categoryName || 'Fashion'}</div>
+        <div className="category">{product.categoryName || 'Fashion'}</div>
         <Link to={`/product/${product.productID}`}><div className="name">{product.productName}</div></Link>
         <div className="rating">
           <span className="stars" style={{ fontSize: 12 }}>{stars}</span>

@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/pages.css';
-import loginBg2 from '../../assets/Extra/login-bg-2.png';
-import logo from '../../assets/logo.png';
+const loginBg2 = '/assets/Extra/login-bg-2.png';
+const logo = '/assets/logo.png';
 
 const authLeftStyle = {
   backgroundImage: `url(${loginBg2})`,
@@ -30,10 +30,10 @@ export default function Register() {
     if (form.password !== form.confirmPassword) { setError('Passwords do not match.'); return; }
     if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 700));
-    const result = register({ ...form, userType: role });
+    const result = await register({ ...form, userType: role });
     setLoading(false);
     if (result.success) navigate('/');
+    else setError(result.message);
   };
 
   return (

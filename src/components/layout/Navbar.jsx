@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, Search, User, Menu, X, LogOut, Package, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import logo from '../../assets/logo.png';
+import { fetchCategories } from '../../services/api';
 import '../../styles/navbar.css';
+
+const logo = '/assets/logo.png';
 
 export default function Navbar() {
   const { currentUser, logout, displayName, isCustomer, isSeller, isAdmin } = useAuth();
@@ -13,6 +15,17 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (err) { console.error(err); }
+    };
+    loadCategories();
+  }, []);
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
@@ -41,9 +54,11 @@ export default function Navbar() {
             <li className="nav-dropdown">
               <span className="nav-link" style={{cursor:'pointer'}}>Categories ▾</span>
               <div className="nav-dropdown-menu">
-                <Link to="/shop?category=1" className="nav-dropdown-item"><span>👗</span> Modest</Link>
-                <Link to="/shop?category=2" className="nav-dropdown-item"><span>🥻</span> Eastern</Link>
-                <Link to="/shop?category=3" className="nav-dropdown-item"><span>👔</span> Western</Link>
+                {categories.map(cat => (
+                  <Link key={cat._id} to={`/shop?category=${cat._id}`} className="nav-dropdown-item">
+                    <span>{cat.icon}</span> {cat.name}
+                  </Link>
+                ))}
               </div>
             </li>
           </ul>
@@ -113,9 +128,11 @@ export default function Navbar() {
         </form>
         <Link to="/" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Home</Link>
         <Link to="/shop" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Shop</Link>
-        <Link to="/shop?category=1" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Modest</Link>
-        <Link to="/shop?category=2" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Eastern</Link>
-        <Link to="/shop?category=3" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Western</Link>
+        {categories.map(cat => (
+          <Link key={cat._id} to={`/shop?category=${cat._id}`} className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>
+            {cat.name}
+          </Link>
+        ))}
         <Link to="/cart" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Cart ({itemCount})</Link>
         {currentUser ? (
           <>
