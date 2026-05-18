@@ -45,7 +45,7 @@ export default function ProductCard({ product }) {
       <div className="product-card-footer">
         <button
           className="product-add-btn"
-          onClick={() => addToCart(product.productID)}
+          onClick={() => addToCart(product)}
           disabled={product.stockQuantity === 0}
         >
           <ShoppingCart size={14} />

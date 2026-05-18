@@ -54,7 +54,7 @@ export default function ProductDetail() {
   const discountedPrice = getDiscount(product);
 
   const handleAddToCart = () => {
-    for (let i = 0; i < qty; i++) addToCart(product.productID);
+    for (let i = 0; i < qty; i++) addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };

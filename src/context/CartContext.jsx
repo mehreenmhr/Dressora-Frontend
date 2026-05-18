@@ -8,9 +8,12 @@ export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  const addToCart = (productID, quantity = 1) => {
-    const product = getProductById(productID);
+  const addToCart = (productOrId, quantity = 1) => {
+    const product = typeof productOrId === 'object'
+      ? productOrId
+      : getProductById(productOrId);
     if (!product || product.stockQuantity === 0) return;
+    const productID = product.productID || product._id || product.mockId || productOrId;
     setItems(prev => {
       const exists = prev.find(i => i.productID === productID);
       if (exists) {
