@@ -14,7 +14,6 @@ function SellerSidebar({ active }) {
       <div className="dash-nav-section">
         <div className="dash-section-label">Main</div>
         {[
-          { path:'/seller',          icon: ShoppingBag, label:'Dashboard' },
           { path:'/seller/products', icon: Package,     label:'My Products' },
           { path:'/seller/orders',   icon: DollarSign,  label:'Orders' },
         ].map(({ path, icon:Icon, label }) => (

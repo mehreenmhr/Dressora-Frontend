@@ -11,7 +11,7 @@ import Login          from '../pages/auth/Login';
 import Register       from '../pages/auth/Register';
 
 import { Profile, Orders, OrderDetail, Addresses } from '../pages/customer/CustomerPages';
-import { SellerDashboard, SellerProducts, SellerOrders } from '../pages/seller/SellerPages';
+import { SellerProducts, SellerOrders } from '../pages/seller/SellerPages';
 import { AdminDashboard, AdminUsers, AdminProducts, AdminOrders, AdminCoupons } from '../pages/admin/AdminPages';
 
 // Route guards
@@ -56,7 +56,7 @@ export default function AppRoutes() {
       <Route path="/account/addresses"     element={<RequireAuth><Addresses /></RequireAuth>} />
 
       {/* Seller */}
-      <Route path="/seller"          element={<RequireSeller><SellerDashboard /></RequireSeller>} />
+      <Route path="/seller"          element={<RequireSeller><Navigate to="/seller/orders" replace /></RequireSeller>} />
       <Route path="/seller/products" element={<RequireSeller><SellerProducts /></RequireSeller>} />
       <Route path="/seller/orders"   element={<RequireSeller><SellerOrders /></RequireSeller>} />
 
