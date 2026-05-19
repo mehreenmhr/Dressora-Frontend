@@ -10,7 +10,6 @@ function AdminSidebar({ active }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const links = [
-    { path:'/admin',            icon: BarChart2,  label:'Dashboard',  section:'Main' },
     { path:'/admin/users',      icon: Users,      label:'Users',      section:'Main' },
     { path:'/admin/products',   icon: Package,    label:'Products',   section:'Main' },
     { path:'/admin/orders',     icon: ShoppingBag,label:'Orders',     section:'Sales' },
