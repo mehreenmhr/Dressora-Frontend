@@ -29,8 +29,6 @@ const features = [
 export default function Home() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [newArrivals, setNewArrivals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,10 +39,6 @@ export default function Home() {
           fetchProducts()
         ]);
         setCategories(catsData);
-        
-        const activeProducts = prodsData.filter(p => p.isActive);
-        setFeaturedProducts(activeProducts.slice(0, 8));
-        setNewArrivals(activeProducts.slice(-4));
       } catch (error) {
         console.error("Error loading home data:", error);
       } finally {
@@ -126,66 +120,6 @@ export default function Home() {
                 <div className="count">View All</div>
               </Link>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Featured Products ── */}
-      <section className="section section--light">
-        <div className="container">
-          <div className="section-header-flex">
-            <div>
-              <div className="eyebrow" style={{ color: 'var(--pink)', fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Hand Picked For You</div>
-              <h2 style={{ marginBottom: 0 }}>Featured Products</h2>
-            </div>
-            <Link to="/shop" className="btn btn-outline btn-sm">View All <ChevronRight size={14} /></Link>
-          </div>
-          <div className="products-grid">
-            {featuredProducts.map(p => <ProductCard key={p._id || p.productID} product={p} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Promo Banner ── */}
-      <section className="section">
-        <div className="container">
-          <div className="promo-banner">
-            <div className="promo-banner-text">
-              <h2>Up to 30% Off<br/>Summer Collection</h2>
-              <p>Use code <strong>SUMMER15</strong> at checkout for an extra 15% off</p>
-            </div>
-            <div className="promo-banner-actions">
-              <img 
-                src={saleImg} 
-                alt="Sale Banner"
-                style={{ 
-                  width: 200, 
-                  height: 180, 
-                  borderRadius: 16, 
-                  marginBottom: 20,
-                  objectFit: 'cover'
-                }}
-              />
-              <button className="btn btn-white btn-lg" onClick={() => navigate('/shop?category=6')} style={{ display: 'block', width: '100%', justifyContent: 'center' }}>
-                Shop Sale <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── New Arrivals ── */}
-      <section className="section section--light">
-        <div className="container">
-          <div className="section-header-flex">
-            <div>
-              <div className="eyebrow" style={{ color: 'var(--pink)', fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Just Arrived</div>
-              <h2 style={{ marginBottom: 0 }}>New Arrivals</h2>
-            </div>
-            <Link to="/shop" className="btn btn-outline btn-sm">See More <ChevronRight size={14} /></Link>
-          </div>
-          <div className="products-grid">
-            {newArrivals.map(p => <ProductCard key={p._id || p.productID} product={p} />)}
           </div>
         </div>
       </section>
