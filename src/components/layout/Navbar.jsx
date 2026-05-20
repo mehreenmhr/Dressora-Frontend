@@ -55,8 +55,8 @@ export default function Navbar() {
               <span className="nav-link" style={{cursor:'pointer'}}>Categories ▾</span>
               <div className="nav-dropdown-menu">
                 {categories.map(cat => (
-                  <Link key={cat._id} to={`/shop?category=${cat._id}`} className="nav-dropdown-item">
-                    <span>{cat.icon}</span> {cat.name}
+                  <Link key={cat.categoryID} to={`/shop?category=${cat.categoryID}`} className="nav-dropdown-item">
+                    <span>{cat.icon}</span> {cat.categoryName}
                   </Link>
                 ))}
               </div>
@@ -129,8 +129,8 @@ export default function Navbar() {
         <Link to="/" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Home</Link>
         <Link to="/shop" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Shop</Link>
         {categories.map(cat => (
-          <Link key={cat._id} to={`/shop?category=${cat._id}`} className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>
-            {cat.name}
+          <Link key={cat.categoryID} to={`/shop?category=${cat.categoryID}`} className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>
+            {cat.categoryName}
           </Link>
         ))}
         <Link to="/cart" className="mobile-nav-link" onClick={()=>setMobileOpen(false)}>Cart ({itemCount})</Link>

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, ShoppingBag, DollarSign, Star, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { products, orders, orderItems, getProductById, formatPrice, categories } from '../../data/mockData';
+import { fetchProducts, fetchSellerOrders, updateOrderStatus, updateProductStatus } from '../../services/api';
+import { formatPrice, categories } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function SellerSidebar({ active }) {
@@ -34,10 +35,41 @@ function SellerSidebar({ active }) {
 export function SellerDashboard() {
   const { currentUser } = useAuth();
   const sellerID = currentUser?.profile?.sellerID || 1;
-  const myProducts = products.filter(p => p.sellerID === sellerID);
-  const myOrderItems = orderItems.filter(oi => myProducts.some(p => p.productID === oi.productID));
-  const revenue = myOrderItems.reduce((s, oi) => s + oi.subtotal, 0);
-  const avgRating = myProducts.length ? (myProducts.reduce((s,p)=>s+p.rating,0)/myProducts.length).toFixed(1) : 0;
+  const [productList, setProductList] = useState([]);
+  const [orderList, setOrderList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const prods = await fetchProducts();
+        const myProds = prods.filter(p => p.sellerID === sellerID);
+        setProductList(myProds);
+
+        const ords = await fetchSellerOrders(sellerID);
+        setOrderList(ords);
+      } catch (err) {
+        console.error('Error fetching seller dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDashboardData();
+  }, [sellerID]);
+
+  const revenue = orderList.reduce((s, oi) => s + oi.subtotal, 0);
+  const avgRating = productList.length ? (productList.reduce((s,p)=>s+p.rating,0)/productList.length).toFixed(1) : 0;
+
+  if (loading) {
+    return (
+      <div className="dashboard-layout">
+        <SellerSidebar active="/seller" />
+        <main className="dashboard-main" style={{ textAlign:'center', paddingTop:80, color:'var(--text-muted)' }}>
+          Loading dashboard...
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout">
@@ -49,8 +81,8 @@ export function SellerDashboard() {
         </div>
         <div className="stats-grid">
           {[
-            { icon: Package,    label:'Total Products',  value: myProducts.length,         change:'+2 this month' },
-            { icon: ShoppingBag,label:'Total Orders',    value: myOrderItems.length,        change:'+5 this week' },
+            { icon: Package,    label:'Total Products',  value: productList.length,         change:'+2 this month' },
+            { icon: ShoppingBag,label:'Total Orders',    value: orderList.length,        change:'+5 this week' },
             { icon: DollarSign, label:'Total Revenue',   value: formatPrice(revenue),       change:'+12% vs last' },
             { icon: Star,       label:'Average Rating',  value: avgRating + '★',            change:'Based on reviews' },
           ].map(({ icon:Icon, label, value, change }) => (
@@ -69,7 +101,7 @@ export function SellerDashboard() {
           <table>
             <thead><tr><th>Product</th><th>Image</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Rating</th></tr></thead>
             <tbody>
-              {myProducts.slice(0,5).map(p => (
+              {productList.slice(0,5).map(p => (
                 <tr key={p.productID}>
                   <td style={{ fontWeight:600 }}>{p.productName}</td>
                   <td>
@@ -106,10 +138,25 @@ export function SellerDashboard() {
 export function SellerProducts() {
   const { currentUser } = useAuth();
   const sellerID = currentUser?.profile?.sellerID || 1;
-  const [productList, setProductList] = useState(products.filter(p => p.sellerID === sellerID));
+  const [productList, setProductList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [form, setForm] = useState({ productName:'', description:'', basePrice:'', stockQuantity:'', sku:'', categoryID:7, isActive:true });
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setProductList(data.filter(p => p.sellerID === sellerID));
+      } catch (err) {
+        console.error("Error loading seller products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [sellerID]);
 
   const openAdd = () => { setEditProduct(null); setForm({ productName:'', description:'', basePrice:'', stockQuantity:'', sku:'', categoryID:7, isActive:true }); setShowModal(true); };
   const openEdit = (p) => { setEditProduct(p); setForm({ productName:p.productName, description:p.description, basePrice:p.basePrice, stockQuantity:p.stockQuantity, sku:p.sku, categoryID:p.categoryID, isActive:p.isActive }); setShowModal(true); };
@@ -124,7 +171,17 @@ export function SellerProducts() {
     setShowModal(false);
   };
 
-  const toggleActive = (id) => setProductList(prev => prev.map(p => p.productID===id ? {...p, isActive:!p.isActive} : p));
+  const toggleActive = async (id) => {
+    const product = productList.find(p => p.productID === id);
+    if (!product) return;
+    const newStatus = !product.isActive;
+    try {
+      await updateProductStatus(id, newStatus);
+      setProductList(prev => prev.map(p => p.productID === id ? { ...p, isActive: newStatus } : p));
+    } catch (err) {
+      alert('Error updating product status: ' + err.message);
+    }
+  };
   const deleteProduct = (id) => { if (window.confirm('Delete this product?')) setProductList(prev=>prev.filter(p=>p.productID!==id)); };
 
   return (
@@ -136,9 +193,12 @@ export function SellerProducts() {
           <button className="btn btn-primary" onClick={openAdd}><Plus size={16}/> Add Product</button>
         </div>
 
-        <div className="data-table">
-          <table>
-            <thead><tr><th>Image</th><th>Product Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '50px 0', color: 'var(--text-muted)' }}>Loading products...</div>
+        ) : (
+          <div className="data-table">
+            <table>
+              <thead><tr><th>Image</th><th>Product Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {productList.map(p => (
                 <tr key={p.productID}>
@@ -177,6 +237,7 @@ export function SellerProducts() {
             </tbody>
           </table>
         </div>
+      )}
 
         {showModal && (
           <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowModal(false)}>
@@ -260,9 +321,23 @@ export function SellerProducts() {
 export function SellerOrders() {
   const { currentUser } = useAuth();
   const sellerID = currentUser?.profile?.sellerID || 1;
-  const myProducts = products.filter(p => p.sellerID === sellerID);
-  const myOrderItems = orderItems.filter(oi => myProducts.some(p => p.productID === oi.productID));
+  const [myOrderItems, setMyOrderItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const statusColors = { pending:'badge-warning', confirmed:'badge-info', processing:'badge-info', shipped:'badge-primary', delivered:'badge-success', cancelled:'badge-danger' };
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const ords = await fetchSellerOrders(sellerID);
+        setMyOrderItems(ords);
+      } catch (err) {
+        console.error('Error fetching seller orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadOrders();
+  }, [sellerID]);
 
   return (
     <div className="dashboard-layout">
@@ -270,25 +345,58 @@ export function SellerOrders() {
       <main className="dashboard-main">
         <div className="dashboard-header"><h1>Orders</h1><p>Orders containing your products</p></div>
         <div className="data-table">
-          <table>
-            <thead><tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th><th>Status</th></tr></thead>
-            <tbody>
-              {myOrderItems.map(oi => {
-                const p = getProductById(oi.productID);
-                const order = orders.find(o=>o.orderID===oi.orderID);
-                return (
-                  <tr key={oi.orderItemID}>
-                    <td><span style={{ fontWeight:600, color:'var(--pink)' }}>#{oi.orderID}</span><div style={{ fontSize:11, color:'var(--text-muted)' }}>{order ? new Date(order.orderDate).toLocaleDateString('en-PK',{dateStyle:'short'}) : ''}</div></td>
-                    <td>{p?.productName}</td>
-                    <td>{oi.quantity}</td>
-                    <td>{formatPrice(oi.unitPrice)}</td>
-                    <td style={{ fontWeight:700 }}>{formatPrice(oi.subtotal)}</td>
-                    <td><span className={`badge ${statusColors[order?.orderStatus||'pending']}`}>{order?.orderStatus}</span></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Loading orders...</div>
+          ) : (
+            <table>
+              <thead><tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th><th>Status</th></tr></thead>
+              <tbody>
+                {myOrderItems.map(oi => {
+                  return (
+                    <tr key={oi.orderItemID}>
+                      <td><span style={{ fontWeight:600, color:'var(--pink)' }}>#{oi.orderID}</span><div style={{ fontSize:11, color:'var(--text-muted)' }}>{new Date(oi.orderDate).toLocaleDateString('en-PK',{dateStyle:'short'})}</div></td>
+                      <td>{oi.productName}</td>
+                      <td>{oi.quantity}</td>
+                      <td>{formatPrice(oi.unitPrice)}</td>
+                      <td style={{ fontWeight:700 }}>{formatPrice(oi.subtotal)}</td>
+                      <td>
+                        <select 
+                          value={oi.orderStatus || 'pending'} 
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            try {
+                              await updateOrderStatus(oi.orderID, newStatus);
+                              setMyOrderItems(prev => prev.map(item => item.orderID === oi.orderID ? { ...item, orderStatus: newStatus } : item));
+                            } catch (err) {
+                              alert('Error updating status: ' + err.message);
+                            }
+                          }}
+                          className="form-control form-select"
+                          style={{
+                            padding: '4px 8px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            borderRadius: '6px',
+                            width: 'auto',
+                            display: 'inline-block',
+                            background: 'white',
+                            border: '1px solid var(--border)'
+                          }}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
     </div>

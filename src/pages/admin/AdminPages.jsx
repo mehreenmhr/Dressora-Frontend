@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Package, ShoppingBag, Tag, BarChart2, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, LogOut, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { fetchProducts, fetchCategories, fetchUsers } from '../../services/api';
-import { formatPrice, orders, customers, coupons } from '../../data/mockData';
+import { fetchProducts, fetchCategories, fetchUsers, fetchCoupons, createCoupon, deleteCoupon, fetchAllOrders, updateUserStatus, updateProductStatus, updateOrderStatus } from '../../services/api';
+import { formatPrice, customers, coupons } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function AdminSidebar({ active }) {
@@ -37,14 +37,15 @@ function AdminSidebar({ active }) {
 }
 
 export function AdminDashboard() {
-  const [counts, setCounts] = useState({ users: 0, products: 0 });
+  const [counts, setCounts] = useState({ users: 0, products: 0, orders: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const [u, p] = await Promise.all([fetchUsers(), fetchProducts()]);
-        setCounts({ users: u.length, products: p.length });
+        const [u, p, o] = await Promise.all([fetchUsers(), fetchProducts(), fetchAllOrders()]);
+        const totalRev = o.reduce((acc, curr) => curr.orderStatus !== 'cancelled' ? acc + Number(curr.finalAmount) : acc, 0);
+        setCounts({ users: u.length, products: p.length, orders: o.length, revenue: totalRev });
       } catch (err) { console.error(err); }
       finally { setLoading(false); }
     };
@@ -62,12 +63,12 @@ export function AdminDashboard() {
           {[
             { icon:Users,      label:'Total Users',    value: counts.users,            change:'Live from DB' },
             { icon:Package,    label:'Total Products', value: counts.products,         change:'Live from DB' },
-            { icon:ShoppingBag,label:'Total Orders',   value: 0,                       change:'Coming soon' },
-            { icon:BarChart2,  label:'Total Revenue',  value: 'Rs. 0',                 change:'Coming soon' },
+            { icon:ShoppingBag,label:'Total Orders',   value: counts.orders,           change:'Live from DB' },
+            { icon:BarChart2,  label:'Total Revenue',  value: formatPrice(counts.revenue), change:'Live from DB' },
           ].map(({ icon:Icon, label, value, change }) => (
             <div key={label} className="stat-card">
-              <div className="stat-icon"><Icon size={20}/></div>
-              <div className="stat-info"><div className="value">{value}</div><div className="label">{label}</div><div className="change">{change}</div></div>
+               <div className="stat-icon"><Icon size={20}/></div>
+               <div className="stat-info"><div className="value">{value}</div><div className="label">{label}</div><div className="change">{change}</div></div>
             </div>
           ))}
         </div>
@@ -93,7 +94,17 @@ export function AdminUsers() {
     loadUsers();
   }, []);
 
-  const toggleActive = (id) => setUserList(prev => prev.map(u => u._id===id ? {...u, isActive:!u.isActive} : u));
+  const toggleActive = async (id) => {
+    const user = userList.find(u => u._id === id);
+    if (!user) return;
+    const newStatus = !user.isActive;
+    try {
+      await updateUserStatus(user.userID, newStatus);
+      setUserList(prev => prev.map(u => u._id === id ? { ...u, isActive: newStatus } : u));
+    } catch (err) {
+      alert('Error updating user status: ' + err.message);
+    }
+  };
   const getRoleBadge = (t) => t==='admin'?'badge-danger':t==='seller'?'badge-primary':'badge-success';
 
   if (loading) return <div className="dashboard-layout"><AdminSidebar active="/admin/users" /><main className="dashboard-main">Loading users...</main></div>;
@@ -172,7 +183,17 @@ export function AdminProducts() {
     loadProducts();
   }, []);
 
-  const toggleActive = (id) => setProdList(prev => prev.map(p => p.productID===id ? {...p, isActive:!p.isActive} : p));
+  const toggleActive = async (id) => {
+    const prod = prodList.find(p => p.productID === id);
+    if (!prod) return;
+    const newStatus = !prod.isActive;
+    try {
+      await updateProductStatus(id, newStatus);
+      setProdList(prev => prev.map(p => p.productID === id ? { ...p, isActive: newStatus } : p));
+    } catch (err) {
+      alert('Error updating product status: ' + err.message);
+    }
+  };
 
   if (loading) return <div className="dashboard-layout"><AdminSidebar active="/admin/products" /><main className="dashboard-main">Loading products...</main></div>;
 
@@ -215,17 +236,49 @@ export function AdminProducts() {
 
 
 export function AdminOrders() {
-  const [orderList, setOrderList] = useState(orders);
+  const [orderList, setOrderList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const statusColors = { pending:'badge-warning', confirmed:'badge-info', processing:'badge-info', shipped:'badge-primary', delivered:'badge-success', cancelled:'badge-danger' };
   const statusFlow = ['pending','confirmed','processing','shipped','delivered'];
 
-  const advanceStatus = (id) => {
-    setOrderList(prev => prev.map(o => {
-      if (o.orderID !== id) return o;
-      const idx = statusFlow.indexOf(o.orderStatus);
-      return idx < statusFlow.length-1 ? {...o, orderStatus: statusFlow[idx+1]} : o;
-    }));
+  const loadAllOrders = async () => {
+    try {
+      const data = await fetchAllOrders();
+      setOrderList(data);
+    } catch (err) {
+      console.error('Error fetching admin orders:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadAllOrders();
+  }, []);
+
+  const advanceStatus = async (id, currentStatus) => {
+    const idx = statusFlow.indexOf(currentStatus);
+    if (idx < statusFlow.length - 1) {
+      const nextStatus = statusFlow[idx + 1];
+      try {
+        await updateOrderStatus(id, nextStatus);
+        setOrderList(prev => prev.map(o => o.orderID === id ? { ...o, orderStatus: nextStatus } : o));
+      } catch (err) {
+        alert('Error advancing status: ' + err.message);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-layout">
+        <AdminSidebar active="/admin/orders" />
+        <main className="dashboard-main">
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Loading orders...</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout">
@@ -237,11 +290,10 @@ export function AdminOrders() {
             <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Discount</th><th>Final</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {orderList.map(o => {
-                const cust = customers.find(c=>c.customerID===o.customerID);
                 return (
                   <tr key={o.orderID}>
                     <td><span style={{ fontWeight:700, color:'var(--pink)' }}>#{o.orderID}</span></td>
-                    <td>{cust ? `${cust.firstName} ${cust.lastName}` : `Customer #${o.customerID}`}</td>
+                    <td>{o.customerName}</td>
                     <td>{new Date(o.orderDate).toLocaleDateString('en-PK',{dateStyle:'short'})}</td>
                     <td>{formatPrice(o.totalAmount)}</td>
                     <td style={{ color:'#1a8a4a' }}>-{formatPrice(o.discountAmount)}</td>
@@ -249,7 +301,7 @@ export function AdminOrders() {
                     <td><span className={`badge ${statusColors[o.orderStatus]}`}>{o.orderStatus}</span></td>
                     <td>
                       {o.orderStatus !== 'delivered' && o.orderStatus !== 'cancelled' && (
-                        <button className="table-action-btn" onClick={()=>advanceStatus(o.orderID)}>Advance →</button>
+                        <button className="table-action-btn" onClick={()=>advanceStatus(o.orderID, o.orderStatus)}>Advance →</button>
                       )}
                     </td>
                   </tr>
@@ -264,14 +316,51 @@ export function AdminOrders() {
 }
 
 export function AdminCoupons() {
-  const [couponList, setCouponList] = useState(coupons);
+  const [couponList, setCouponList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ couponCode:'', discountType:'percentage', discountValue:'', minOrderAmount:'', expiryDate:'', usageLimit:'' });
 
-  const handleAdd = (e) => {
+  const loadCoupons = async () => {
+    try {
+      const data = await fetchCoupons();
+      setCouponList(data);
+    } catch (err) {
+      console.error('Error fetching coupons:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadCoupons();
+  }, []);
+
+  const handleAdd = async (e) => {
     e.preventDefault();
-    setCouponList(prev => [...prev, { couponID:Date.now(), ...form, discountValue:Number(form.discountValue), minOrderAmount:Number(form.minOrderAmount), usageLimit:Number(form.usageLimit), timesUsed:0 }]);
-    setShowModal(false); setForm({ couponCode:'', discountType:'percentage', discountValue:'', minOrderAmount:'', expiryDate:'', usageLimit:'' });
+    try {
+      await createCoupon({
+        couponCode: form.couponCode,
+        discountType: form.discountType,
+        discountValue: Number(form.discountValue),
+        minOrderAmount: Number(form.minOrderAmount),
+        expiryDate: form.expiryDate,
+        usageLimit: Number(form.usageLimit),
+      });
+      loadCoupons();
+      setShowModal(false);
+      setForm({ couponCode:'', discountType:'percentage', discountValue:'', minOrderAmount:'', expiryDate:'', usageLimit:'' });
+    } catch (err) {
+      alert('Error creating coupon: ' + err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this coupon?')) {
+      try {
+        await deleteCoupon(id);
+        loadCoupons();
+      } catch (err) {
+        alert('Error deleting coupon: ' + err.message);
+      }
+    }
   };
 
   return (
@@ -297,13 +386,13 @@ export function AdminCoupons() {
                   <td>
                     <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                       <div style={{ flex:1, height:6, background:'var(--border)', borderRadius:3, minWidth:60 }}>
-                        <div style={{ height:'100%', width:`${Math.min(100, c.timesUsed/c.usageLimit*100)}%`, background:'var(--gradient)', borderRadius:3 }} />
+                        <div style={{ height:'100%', width:`${Math.min(100, c.timesUsed/(c.usageLimit || 1)*100)}%`, background:'var(--gradient)', borderRadius:3 }} />
                       </div>
-                      <span style={{ fontSize:12, color:'var(--text-muted)' }}>{c.timesUsed}/{c.usageLimit}</span>
+                      <span style={{ fontSize:12, color:'var(--text-muted)' }}>{c.timesUsed}/{c.usageLimit || '∞'}</span>
                     </div>
                   </td>
                   <td>
-                    <button className="table-action-btn danger" onClick={()=>setCouponList(p=>p.filter(x=>x.couponID!==c.couponID))}><Trash2 size={12}/> Delete</button>
+                    <button className="table-action-btn danger" onClick={()=>handleDelete(c.couponID)}><Trash2 size={12}/> Delete</button>
                   </td>
                 </tr>
               ))}

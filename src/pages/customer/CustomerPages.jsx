@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Package, MapPin, LogOut, Star, Edit2, Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { getOrdersByCustomer, getAddressesByCustomer, formatPrice, getOrderItems, getProductById } from '../../data/mockData';
+import { fetchCustomerOrders, updateOrderStatus, fetchCustomerAddresses, addCustomerAddress } from '../../services/api';
+import { formatPrice } from '../../data/mockData';
 import '../../styles/pages.css';
 
 function AccountSidebar({ active }) {
@@ -80,7 +81,23 @@ export function Profile() {
 export function Orders() {
   const { currentUser } = useAuth();
   const customerID = currentUser?.profile?.customerID || 1;
-  const myOrders = getOrdersByCustomer(customerID);
+  const [myOrders, setMyOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const data = await fetchCustomerOrders(customerID);
+        setMyOrders(data);
+      } catch (err) {
+        console.error('Error loading customer orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadOrders();
+  }, [customerID]);
+
   const statusColors = { pending:'badge-warning', confirmed:'badge-info', processing:'badge-info', shipped:'badge-primary', delivered:'badge-success', cancelled:'badge-danger' };
 
   return (
@@ -90,10 +107,11 @@ export function Orders() {
         <div className="account-layout">
           <AccountSidebar active="/account/orders" />
           <div>
-            {myOrders.length === 0 ? (
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Loading orders...</div>
+            ) : myOrders.length === 0 ? (
               <div className="empty-state"><Package size={48}/><h3>No orders yet</h3><p>Start shopping to see your orders here!</p><Link to="/shop" className="btn btn-primary" style={{ marginTop:16, display:'inline-flex' }}>Shop Now</Link></div>
             ) : myOrders.map(order => {
-              const items = getOrderItems(order.orderID);
               return (
                 <div key={order.orderID} className="card" style={{ marginBottom:16 }}>
                   <div style={{ padding:'16px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid var(--border)', flexWrap:'wrap', gap:10 }}>
@@ -107,19 +125,46 @@ export function Orders() {
                     </div>
                   </div>
                   <div style={{ padding:'14px 20px' }}>
-                    {items.map(item => { const p = getProductById(item.productID); return p ? (
+                    {order.orderItems.map(item => (
                       <div key={item.orderItemID} style={{ display:'flex', gap:12, marginBottom:8, alignItems:'center' }}>
-                        <div style={{ width:48, height:60, borderRadius:8, overflow:'hidden', flexShrink:0, border:'1px solid var(--border)' }}><div className="img-placeholder" style={{ height:'100%' }}><span style={{ fontSize:10 }}>📷</span></div></div>
+                        <div style={{ width:48, height:60, borderRadius:8, overflow:'hidden', flexShrink:0, border:'1px solid var(--border)' }}>
+                          <img 
+                            src={item.image} 
+                            alt={item.productName}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f5f5f5;font-size:10px;color:#999;">📷</div>';
+                            }}
+                          />
+                        </div>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontSize:13, fontWeight:600 }}>{p.productName}</div>
+                          <div style={{ fontSize:13, fontWeight:600 }}>{item.productName}</div>
                           <div style={{ fontSize:12, color:'var(--text-muted)' }}>Qty: {item.quantity} × {formatPrice(item.unitPrice)}</div>
                         </div>
                         <div style={{ fontWeight:600, fontSize:13 }}>{formatPrice(item.subtotal)}</div>
                       </div>
-                    ) : null; })}
+                    ))}
                     <div style={{ display:'flex', gap:10, marginTop:12 }}>
                       <Link to={`/account/orders/${order.orderID}`} className="btn btn-outline btn-sm">View Details</Link>
-                      {order.orderStatus === 'pending' && <button className="btn btn-sm" style={{ background:'#fde8f0', color:'#c0143c', border:'none' }}>Cancel Order</button>}
+                      {order.orderStatus === 'pending' && (
+                        <button 
+                          className="btn btn-sm" 
+                          style={{ background:'#fde8f0', color:'#c0143c', border:'none' }}
+                          onClick={async () => {
+                            if (window.confirm('Are you sure you want to cancel this order?')) {
+                              try {
+                                await updateOrderStatus(order.orderID, 'cancelled');
+                                setMyOrders(prev => prev.map(o => o.orderID === order.orderID ? { ...o, orderStatus: 'cancelled' } : o));
+                              } catch (err) {
+                                alert('Failed to cancel order: ' + err.message);
+                              }
+                            }
+                          }}
+                        >
+                          Cancel Order
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -137,12 +182,40 @@ export function OrderDetail() {
   const navigate = useNavigate();
   const orderID = parseInt(window.location.pathname.split('/').pop());
   const customerID = currentUser?.profile?.customerID || 1;
-  const myOrders = getOrdersByCustomer(customerID);
-  const order = myOrders.find(o => o.orderID === orderID);
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        const data = await fetchCustomerOrders(customerID);
+        const found = data.find(o => o.orderID === orderID);
+        setOrder(found);
+      } catch (err) {
+        console.error('Error loading order detail:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadOrder();
+  }, [customerID, orderID]);
+
+  if (loading) {
+    return (
+      <div>
+        <div className="page-header"><div className="container"><h1>Order #{orderID}</h1><div className="breadcrumb"><Link to="/">Home</Link> / <Link to="/account/orders">Orders</Link> / <span>#{orderID}</span></div></div></div>
+        <div className="container section">
+          <div className="account-layout">
+            <AccountSidebar active="/account/orders" />
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading order details...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!order) return <div className="container" style={{ paddingTop:80 }}><h3>Order not found.</h3><button className="btn btn-primary" onClick={() => navigate('/account/orders')}>Back to Orders</button></div>;
 
-  const items = getOrderItems(order.orderID);
   const statusList = ['pending','confirmed','processing','shipped','delivered'];
   const currentIdx = statusList.indexOf(order.orderStatus);
 
@@ -169,16 +242,26 @@ export function OrderDetail() {
             </div>
             <div className="card card-body" style={{ marginBottom:20 }}>
               <h3 style={{ marginBottom:16 }}>Order Items</h3>
-              {items.map(item => { const p = getProductById(item.productID); return p ? (
+              {order.orderItems.map(item => (
                 <div key={item.orderItemID} style={{ display:'flex', gap:14, marginBottom:14, paddingBottom:14, borderBottom:'1px solid var(--border)' }}>
-                  <div style={{ width:64, height:80, borderRadius:8, overflow:'hidden', flexShrink:0, border:'1px solid var(--border)' }}><div className="img-placeholder" style={{ height:'100%' }}><span style={{ fontSize:10 }}>📷</span></div></div>
+                  <div style={{ width:64, height:80, borderRadius:8, overflow:'hidden', flexShrink:0, border:'1px solid var(--border)' }}>
+                    <img 
+                      src={item.image} 
+                      alt={item.productName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f5f5f5;font-size:10px;color:#999;">📷</div>';
+                      }}
+                    />
+                  </div>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:600 }}>{p.productName}</div>
+                    <div style={{ fontWeight:600 }}>{item.productName}</div>
                     <div style={{ fontSize:13, color:'var(--text-muted)' }}>Qty: {item.quantity} × {formatPrice(item.unitPrice)}</div>
                   </div>
                   <div style={{ fontWeight:700, color:'var(--pink)' }}>{formatPrice(item.subtotal)}</div>
                 </div>
-              ) : null; })}
+              ))}
               <div style={{ display:'flex', flexDirection:'column', gap:8, marginTop:8 }}>
                 {[['Total Amount', formatPrice(order.totalAmount)],['Discount', `-${formatPrice(order.discountAmount)}`],['Tax', formatPrice(order.taxAmount)],['Final Amount', formatPrice(order.finalAmount)]].map(([l,v]) => (
                   <div key={l} style={{ display:'flex', justifyContent:'space-between', fontSize:14 }}><span style={{ color:'var(--text-muted)' }}>{l}</span><span style={{ fontWeight:600, color: l==='Final Amount'?'var(--pink)':'var(--text-primary)' }}>{v}</span></div>
@@ -195,16 +278,40 @@ export function OrderDetail() {
 export function Addresses() {
   const { currentUser } = useAuth();
   const customerID = currentUser?.profile?.customerID || 1;
-  const [addrList, setAddrList] = useState(getAddressesByCustomer(customerID));
+  const [addrList, setAddrList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ street:'', city:'', state:'', postalCode:'', country:'Pakistan', addressType:'home', isDefault:false });
 
-  const handleAdd = (e) => {
+  useEffect(() => {
+    const loadAddresses = async () => {
+      try {
+        const data = await fetchCustomerAddresses(customerID);
+        setAddrList(data);
+      } catch (err) {
+        console.error('Error loading addresses:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAddresses();
+  }, [customerID]);
+
+  const handleAdd = async (e) => {
     e.preventDefault();
-    const newAddr = { addressID: Date.now(), customerID, ...form };
-    setAddrList(prev => [...prev, newAddr]);
-    setShowForm(false);
-    setForm({ street:'', city:'', state:'', postalCode:'', country:'Pakistan', addressType:'home', isDefault:false });
+    try {
+      const saved = await addCustomerAddress({ customerID, ...form });
+      setAddrList(prev => {
+        if (saved.isDefault) {
+          return prev.map(a => ({ ...a, isDefault: false })).concat(saved);
+        }
+        return [...prev, saved];
+      });
+      setShowForm(false);
+      setForm({ street:'', city:'', state:'', postalCode:'', country:'Pakistan', addressType:'home', isDefault:false });
+    } catch (err) {
+      alert('Failed to save address: ' + err.message);
+    }
   };
 
   return (
@@ -247,22 +354,26 @@ export function Addresses() {
               </div>
             )}
 
-            <div className="grid-2">
-              {addrList.map(addr => (
-                <div key={addr.addressID} className="card card-body" style={{ borderColor: addr.isDefault ? 'var(--pink)' : 'var(--border)', position:'relative' }}>
-                  {addr.isDefault && <span className="badge badge-primary" style={{ position:'absolute', top:12, right:12 }}>Default</span>}
-                  <div style={{ fontSize:14, fontWeight:700, marginBottom:8 }}>{addr.addressType === 'home' ? '🏠 Home' : addr.addressType === 'work' ? '🏢 Work' : '📍 Other'}</div>
-                  <div style={{ fontSize:14, color:'var(--text-secondary)', lineHeight:1.6 }}>
-                    {addr.street}<br/>{addr.city}, {addr.state} {addr.postalCode}<br/>{addr.country}
+            {loading ? (
+              <p style={{ color:'var(--text-muted)' }}>Loading addresses...</p>
+            ) : (
+              <div className="grid-2">
+                {addrList.map(addr => (
+                  <div key={addr.addressID} className="card card-body" style={{ borderColor: addr.isDefault ? 'var(--pink)' : 'var(--border)', position:'relative' }}>
+                    {addr.isDefault && <span className="badge badge-primary" style={{ position:'absolute', top:12, right:12 }}>Default</span>}
+                    <div style={{ fontSize:14, fontWeight:700, marginBottom:8 }}>{addr.addressType === 'home' ? '🏠 Home' : addr.addressType === 'work' ? '🏢 Work' : '📍 Other'}</div>
+                    <div style={{ fontSize:14, color:'var(--text-secondary)', lineHeight:1.6 }}>
+                      {addr.street}<br/>{addr.city}, {addr.state} {addr.postalCode}<br/>{addr.country}
+                    </div>
+                    <div style={{ display:'flex', gap:8, marginTop:14 }}>
+                      <button className="btn btn-outline btn-sm"><Edit2 size={12}/> Edit</button>
+                      {!addr.isDefault && <button className="btn btn-ghost btn-sm" onClick={() => setAddrList(prev => prev.map(a => ({...a, isDefault: a.addressID===addr.addressID})))}>Set Default</button>}
+                      <button className="btn btn-sm" style={{ background:'#fde8f0', color:'#c0143c', border:'none' }} onClick={() => setAddrList(prev=>prev.filter(a=>a.addressID!==addr.addressID))}>Delete</button>
+                    </div>
                   </div>
-                  <div style={{ display:'flex', gap:8, marginTop:14 }}>
-                    <button className="btn btn-outline btn-sm"><Edit2 size={12}/> Edit</button>
-                    {!addr.isDefault && <button className="btn btn-ghost btn-sm" onClick={() => setAddrList(prev => prev.map(a => ({...a, isDefault: a.addressID===addr.addressID})))}>Set Default</button>}
-                    <button className="btn btn-sm" style={{ background:'#fde8f0', color:'#c0143c', border:'none' }} onClick={() => setAddrList(prev=>prev.filter(a=>a.addressID!==addr.addressID))}>Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,12 +1,15 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Package, Truck, Home } from 'lucide-react';
 import { formatPrice } from '../data/mockData';
 
 export default function OrderConfirmation() {
   const { state } = useLocation();
-  const orderID = state?.orderID || 'ORD-' + Date.now();
-  const total = state?.total || 0;
-  const paymentMethod = state?.paymentMethod || 'online';
+  const [searchParams] = useSearchParams();
+  
+  // Try to get orderID from URL params or state
+  const orderID = searchParams.get('orderID') || state?.orderID || 'ORD-' + Date.now();
+  const total = parseFloat(searchParams.get('total')) || state?.total || 0;
+  const paymentMethod = searchParams.get('paymentMethod') || state?.paymentMethod || 'online';
 
   return (
     <div style={{ minHeight:'80vh', display:'flex', alignItems:'center', justifyContent:'center', padding:'48px 24px', background:'var(--bg-light)' }}>
@@ -58,7 +61,7 @@ export default function OrderConfirmation() {
         </div>
 
         <div style={{ display:'flex', gap:12, justifyContent:'center' }}>
-          <Link to="/account/orders" className="btn btn-primary">Track My Order</Link>
+          <Link to={`/account/orders/${orderID}`} className="btn btn-primary">Track My Order</Link>
           <Link to="/shop" className="btn btn-outline">Continue Shopping</Link>
         </div>
 

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { formatPrice, coupons } from '../data/mockData';
+import { fetchCoupons } from '../services/api';
+import { formatPrice } from '../data/mockData';
 import '../styles/pages.css';
 
 export default function Cart() {
@@ -13,10 +14,23 @@ export default function Cart() {
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
+  const [couponsList, setCouponsList] = useState([]);
+
+  useEffect(() => {
+    const loadCoupons = async () => {
+      try {
+        const data = await fetchCoupons();
+        setCouponsList(data);
+      } catch (err) {
+        console.error('Error fetching coupons:', err);
+      }
+    };
+    loadCoupons();
+  }, []);
 
   const handleCoupon = () => {
     setCouponError(''); setCouponSuccess('');
-    const found = coupons.find(c => c.couponCode.toLowerCase() === couponCode.trim().toLowerCase());
+    const found = couponsList.find(c => c.couponCode.toLowerCase() === couponCode.trim().toLowerCase());
     if (!found) { setCouponError('Invalid coupon code.'); return; }
     if (new Date(found.expiryDate) < new Date()) { setCouponError('This coupon has expired.'); return; }
     if (found.timesUsed >= found.usageLimit) { setCouponError('Coupon usage limit reached.'); return; }
