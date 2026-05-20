@@ -106,17 +106,17 @@ export default function Home() {
           </div>
           <div className="category-grid">
             {topCategories.map((cat, index) => (
-              <Link to={`/shop?category=${cat._id}`} key={cat._id} className="category-card">
+              <Link to={`/shop?category=${cat.categoryID}`} key={cat.categoryID} className="category-card">
                 <div className="category-card-img">
-                  {categoryImages[cat.name] ? (
-                    <img src={categoryImages[cat.name]} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
+                  {categoryImages[cat.categoryName] ? (
+                    <img src={categoryImages[cat.categoryName]} alt={cat.categoryName} style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#F1E9E9' }} />
                   ) : (
                     <div className="img-placeholder" style={{ height: '100%' }}>
                       <span>{cat.icon}</span>
                     </div>
                   )}
                 </div>
-                <div className="name">{cat.name}</div>
+                <div className="name">{cat.categoryName}</div>
                 <div className="count">View All</div>
               </Link>
             ))}

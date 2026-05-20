@@ -12,7 +12,7 @@ export default function Shop() {
   const [filtered, setFiltered]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch]         = useState(searchParams.get('search') || '');
-  const [selectedCat, setSelectedCat] = useState(searchParams.get('category') || null);
+  const [selectedCat, setSelectedCat] = useState(searchParams.get('category') ? Number(searchParams.get('category')) : null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -36,7 +36,7 @@ export default function Shop() {
   // Update state when URL parameters change
   useEffect(() => {
     setSearch(searchParams.get('search') || '');
-    setSelectedCat(searchParams.get('category') || null);
+    setSelectedCat(searchParams.get('category') ? Number(searchParams.get('category')) : null);
   }, [searchParams]);
   const [priceMin, setPriceMin]     = useState('');
   const [priceMax, setPriceMax]     = useState('');

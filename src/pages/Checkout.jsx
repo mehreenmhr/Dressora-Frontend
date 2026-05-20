@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { addresses, formatPrice } from '../data/mockData';
+import { placeOrder, fetchCustomerAddresses } from '../services/api';
+import { formatPrice } from '../data/mockData';
 import '../styles/pages.css';
 
 export default function Checkout() {
@@ -11,22 +12,81 @@ export default function Checkout() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const customerID = currentUser?.profile?.customerID || 1;
-  const customerAddresses = addresses.filter(a => a.customerID === customerID);
 
-  const [shippingAddr, setShippingAddr] = useState(customerAddresses.find(a=>a.isDefault)?.addressID || customerAddresses[0]?.addressID);
-  const [billingAddr, setBillingAddr]   = useState(customerAddresses.find(a=>a.isDefault)?.addressID || customerAddresses[0]?.addressID);
+  const [customerAddresses, setCustomerAddresses] = useState([]);
+  const [shippingAddr, setShippingAddr] = useState(null);
+  const [billingAddr, setBillingAddr]   = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('online');
   const [placing, setPlacing] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
+  const [loadingAddrs, setLoadingAddrs] = useState(true);
+
+  useEffect(() => {
+    const loadAddrs = async () => {
+      try {
+        const data = await fetchCustomerAddresses(customerID);
+        setCustomerAddresses(data);
+        const def = data.find(a => a.isDefault)?.addressID || data[0]?.addressID;
+        setShippingAddr(def);
+        setBillingAddr(def);
+      } catch (err) {
+        console.error('Error loading customer addresses:', err);
+        // Still allow checkout even if addresses fail to load
+        // Use null addresses - backend will handle creating default ones
+      } finally {
+        setLoadingAddrs(false);
+      }
+    };
+    loadAddrs();
+  }, [customerID]);
 
   const handlePlaceOrder = async () => {
-    if (!shippingAddr || !billingAddr) { alert('Please select shipping and billing addresses.'); return; }
+    if (!shippingAddr) {
+      alert('Please select or add a shipping address before placing your order.');
+      return;
+    }
     setPlacing(true);
-    await new Promise(r => setTimeout(r, 1200));
-    clearCart();
-    navigate('/order-confirmation', { state: { orderID: Math.floor(Math.random()*9000)+1000, total, paymentMethod } });
+    try {
+      const orderPayload = {
+        customerId: customerID,
+        items: items.map(item => ({
+          productID: item.productID,
+          quantity: item.quantity,
+          priceAtTime: item.priceAtTime,
+        })),
+        totalAmount: subtotal,
+        discountAmount: discount,
+        taxAmount: tax,
+        finalAmount: total,
+        shippingAddressId: shippingAddr,
+        billingAddressId: billingAddr || shippingAddr,
+        paymentMethod: paymentMethod,
+      };
+
+      console.log('🛒 Placing order with payload:', orderPayload);
+      const result = await placeOrder(orderPayload);
+      console.log('✅ Order placed successfully:', result);
+      
+      // Clear cart and apply changes
+      clearCart();
+      
+      // Store order info and navigate
+      const confirmUrl = `/order-confirmation?orderID=${result.orderID}&total=${total}&paymentMethod=${paymentMethod}`;
+      console.log('📍 Navigating to:', confirmUrl);
+      navigate(confirmUrl);
+      
+      // Hard reload to ensure everything updates
+      setTimeout(() => {
+        window.location.href = confirmUrl;
+      }, 500);
+    } catch (err) {
+      console.error('❌ Order error:', err);
+      alert('Error placing order: ' + err.message);
+      setPlacing(false);
+    }
   };
 
-  if (!items.length) { navigate('/cart'); return null; }
+  if (!items.length && !orderCompleted) { navigate('/cart'); return null; }
 
   const AddrCard = ({ selected, onSelect, addr }) => (
     <div className={`address-option ${selected===addr.addressID?'selected':''}`} onClick={() => onSelect(addr.addressID)}>
@@ -50,7 +110,13 @@ export default function Checkout() {
             {/* Shipping Address */}
             <div className="checkout-card">
               <h3><span className="step-num">1</span> Shipping Address</h3>
-              {customerAddresses.length ? customerAddresses.map(a => <AddrCard key={a.addressID} selected={shippingAddr} onSelect={setShippingAddr} addr={a} />) : <p style={{ color:'var(--text-muted)', fontSize:14 }}>No addresses saved. <Link to="/account/addresses" style={{ color:'var(--pink)' }}>Add one →</Link></p>}
+              {loadingAddrs ? (
+                <p style={{ color:'var(--text-muted)', fontSize:14 }}>Loading addresses...</p>
+              ) : customerAddresses.length ? (
+                customerAddresses.map(a => <AddrCard key={a.addressID} selected={shippingAddr} onSelect={setShippingAddr} addr={a} />)
+              ) : (
+                <p style={{ color:'var(--text-muted)', fontSize:14 }}>No addresses saved. <Link to="/account/addresses" style={{ color:'var(--pink)' }}>Add one →</Link></p>
+              )}
               <Link to="/account/addresses" className="btn btn-ghost btn-sm" style={{ marginTop:12, display:'inline-flex' }}>+ Add New Address</Link>
             </div>
 
@@ -61,7 +127,7 @@ export default function Checkout() {
                 <input type="radio" readOnly checked={billingAddr===shippingAddr} style={{ accentColor:'var(--pink)' }} />
                 <div className="addr-text"><div className="title">Same as shipping address</div></div>
               </div>
-              {customerAddresses.filter(a=>a.addressID!==shippingAddr).map(a => <AddrCard key={a.addressID} selected={billingAddr} onSelect={setBillingAddr} addr={a} />)}
+              {!loadingAddrs && customerAddresses.filter(a=>a.addressID!==shippingAddr).map(a => <AddrCard key={a.addressID} selected={billingAddr} onSelect={setBillingAddr} addr={a} />)}
             </div>
 
             {/* Payment */}
@@ -88,7 +154,22 @@ export default function Checkout() {
             <h3 style={{ marginBottom:16, paddingBottom:12, borderBottom:'1px solid var(--border)' }}>Order Summary</h3>
             {items.map(item => (
               <div key={item.productID} className="order-item-row">
-                <div className="order-item-img"><div className="img-placeholder" style={{ height:'100%' }}><span style={{ fontSize:10 }}>📷</span></div></div>
+                <div className="order-item-img">
+                  <img 
+                    src={item.product.image} 
+                    alt={item.product.productName}
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover',
+                      borderRadius: 4
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f5f5f5;border-radius:4px;font-size:10px;color:#999;">📷</div>';
+                    }}
+                  />
+                </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:13, fontWeight:600 }}>{item.product.productName}</div>
                   <div style={{ fontSize:12, color:'var(--text-muted)' }}>Qty: {item.quantity}</div>
